@@ -1,0 +1,11 @@
+{
+    "java.project.sourcePaths": ["src"],
+    "java.project.outputPath": "bin",
+    "java.project.referencedLibraries": [
+        "lib/**/*.jar",
+        "e:\\APT_Assignments\\jsoup-1.16.1.jar",
+        "e:\\apache-tomcat-9.0.74-windows-x64\\apache-tomcat-9.0.74\\lib\\servlet-api.jar",
+        "e:\\sqljdbc_12.2.0.0_enu\\sqljdbc_12.2\\enu\\mssql-jdbc-12.2.0.jre8.jar",
+        "e:\\sqljdbc_12.2.0.0_enu\\sqljdbc_12.2\\enu\\mssql-jdbc-12.2.0.jre11.jar"
+    ]
+}
