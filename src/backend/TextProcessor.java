@@ -2,6 +2,7 @@ package backend;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -61,14 +62,13 @@ public class TextProcessor{
 
     public static void main(String args[]) throws IOException , FileNotFoundException{
         TextProcessor Parser = new TextProcessor();
-        ArrayList<String> words = Parser.processFile("test.txt");
-        for(String word : words){
-            System.out.println("Before stemming : " + word);
-        }
-        System.out.println("###################################################");
+        ArrayList<String> words = Parser.processFile("jsoup.txt");
         words = Parser.stem(words);
+        FileWriter writer = new FileWriter("jsoup_parsed.txt");
         for(String word : words){
-            System.out.println("After stemming : " + word);
+            if(word.length() != 0)
+            writer.write(word + "\n");
         }
+        writer.close();
     }
 }

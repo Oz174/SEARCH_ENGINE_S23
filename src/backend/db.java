@@ -1,9 +1,7 @@
 package backend;
-
 import java.sql.*;
 
-public class db {
-
+public class db { 
     private static String Connection_String = "jdbc:sqlserver://Dc-OZER;databaseName=search_engine_db;integratedSecurity=true;encrypt=false;";
     private static String user = "sa";
     private static String pswd = "search_engine_db_S23";

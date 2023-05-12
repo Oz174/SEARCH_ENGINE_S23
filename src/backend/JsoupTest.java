@@ -1,22 +1,19 @@
 package backend;
+import java.io.FileWriter;
+import java.io.IOException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
+
 public class JsoupTest {
-public static void main(String args[]){
-    Document page = null; 
-    try{
-        page = Jsoup.connect("http://www.ssaurel.com/blog").get();
-    }catch(Exception e){
-        e.printStackTrace();
-    }
-    Elements links = page.select("a[href]");
-
-    for(Element link : links){
-        System.out.println("\n link : " + link.attr("href"));
-        System.out.println("\n Text : " + link.text());
-    }
-
-}    
+public static void main(String args[]) throws IOException{
+  // get a document from any url and turn it into plain text 
+    Document doc = Jsoup.connect("https://stackoverflow.com/questions/12318097/why-do-we-use-serialization").get();
+    //String head_text = doc.head().html();
+    FileWriter writer = new FileWriter("jsoup.txt");
+    //writer.write(head_text);
+    // iterate over p tags in body and get their content 
+    String body_text = doc.body().select("p").text().formatted();
+    writer.write(body_text); 
+    writer.close();
+}
 }
