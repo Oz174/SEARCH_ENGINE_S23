@@ -56,7 +56,7 @@ public class TextProcessor {
         while (i.hasNext()) {
             String next_Word = i.next();
             if(next_Word != ""){
-            writer.write(prev_word + "," + next_Word);
+            writer.write(prev_word + "," + next_Word + "," + words.indexOf(prev_word));
             stemmer.setCurrent(prev_word);
             stemmer.stem();
             prev_word = stemmer.getCurrent();
@@ -72,7 +72,7 @@ public class TextProcessor {
         }
         // in case one word or last word 
         if(counter == 0 || counter == words.size() - 1){
-        writer.write(prev_word + ",");
+        writer.write(prev_word + "," +  words.indexOf(prev_word) +",");
         stemmer.setCurrent(prev_word);
         stemmer.stem();
         prev_word = stemmer.getCurrent();

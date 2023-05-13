@@ -31,3 +31,6 @@ public static void main(String args[]) throws IOException{
     reader.close();
 }
 }
+
+// el mafrod ykon fe constructor ll indexer on the first intialization msh fl main y3ny 
+// then open the indices file b2a w y-index ! 
