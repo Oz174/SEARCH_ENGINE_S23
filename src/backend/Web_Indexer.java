@@ -10,12 +10,13 @@ TextProcessor text_processor;
 public static void main(String args[]) throws IOException{
     db.connect();
     BufferedReader reader = new BufferedReader(new FileReader("urls.txt"));
+    // ArrayList<String> Visited = new ArrayList<String>();
     TextProcessor textProcessor = new TextProcessor();
     String line;
     while((line = reader.readLine()) != null){
         // parse the url into a document 
         Parser.Extract_Tags_from_URL(line);
-        // get the title of the document 
+
         String title = Parser.title;
         textProcessor.ProcessElements(title,"title");
         
