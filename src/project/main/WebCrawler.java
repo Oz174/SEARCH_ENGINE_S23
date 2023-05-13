@@ -4,11 +4,6 @@ import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
 import java.util.concurrent.*;
-
-import javax.swing.text.html.HTML;
-
-import java.util.Queue;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -17,14 +12,8 @@ import java.net.URL;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.*;
 import org.jsoup.select.*;
-import project.db;
-
-
 
 public class WebCrawler {
-	
-	private String startUrl;
-	private static db database;
 	private static final int MAX_TO_BE_CRAWLED = 30;
 	private static final int MAX_PER_PAGE = 10;
 
@@ -39,20 +28,18 @@ public class WebCrawler {
 		return this.toVisit.size();
 	}
 
-	public WebCrawler(ArrayList <String> toVisit, ArrayList<String> visited) {
+	public WebCrawler(ArrayList<String> toVisit, ArrayList<String> visited) {
 		this.isVisited = new ConcurrentHashMap<String, Boolean>();
-		if(visited != null)
-		{
+		if (visited != null) {
 			for (String url : visited) {
 				this.isVisited.put(url, true);
 			}
 		}
-		this.toVisit = new ArrayBlockingQueue <String> (MAX_TO_BE_CRAWLED);
-		if(toVisit != null)
-		{
+		this.toVisit = new ArrayBlockingQueue<String>(MAX_TO_BE_CRAWLED);
+		if (toVisit != null) {
 			for (String url : toVisit)
-				this.toVisit.offer(url); //add() method throws error when queue is full
-			//offer() method returns false in such situation.
+				this.toVisit.offer(url); // add() method throws error when queue is full
+			// offer() method returns false in such situation.
 		}
 	}
 
@@ -146,7 +133,6 @@ public class WebCrawler {
 
 			this.isVisited.put(url, true);
 
-
 			Elements elements = doc.select("a");
 			System.out.println("Thread " + Thread.currentThread().getName() + " visited page: " + url + " \nFound ("
 					+ elements.size() + ") link(s)");
@@ -163,7 +149,7 @@ public class WebCrawler {
 					href = normalizeLink(href, url);
 					if (href == null)
 						continue;
-					
+
 					synchronized (this.toVisit) {
 						if (!this.toVisit.contains(href) && !this.isVisited.containsKey(href)) {
 							this.toVisit.offer(href);
@@ -298,6 +284,7 @@ public class WebCrawler {
 		}
 	}
 }
+
 class webCrawlerRunnable implements Runnable {
 	private WebCrawler webCrawler;
 
