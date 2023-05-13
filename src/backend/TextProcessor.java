@@ -50,34 +50,16 @@ public class TextProcessor {
             break;
         }
         Iterator<String> i = words.iterator();
-        porterStemmer stemmer = new porterStemmer();
-        int counter = 0; 
-        String prev_word = i.next();
+        porterStemmer stemmer = new porterStemmer();   
         while (i.hasNext()) {
-            String next_Word = i.next();
-            if(next_Word != ""){
-            writer.write(prev_word + "," + next_Word + "," + words.indexOf(prev_word));
+            String prev_word = i.next();
+            if(prev_word == "") continue;
+            writer.write(prev_word + "," + words.indexOf(prev_word));
             stemmer.setCurrent(prev_word);
             stemmer.stem();
             prev_word = stemmer.getCurrent();
-            writer.write("," + prev_word);
-            prev_word = next_Word;
-            stemmer.setCurrent(next_Word);
-            stemmer.stem();
-            next_Word = stemmer.getCurrent();
-            writer.write("," + next_Word + "," + Tag);
+            writer.write("," + prev_word + "," + Tag);
             writer.write("\n");
-            counter++;
-            }
-        }
-        // in case one word or last word 
-        if(counter == 0 || counter == words.size() - 1){
-        writer.write(prev_word + "," +  words.indexOf(prev_word) +",");
-        stemmer.setCurrent(prev_word);
-        stemmer.stem();
-        prev_word = stemmer.getCurrent();
-        writer.write(prev_word + "," + Tag);
-        writer.write("\n");
         }
         writer.close();
     }
