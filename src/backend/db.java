@@ -1,12 +1,12 @@
 package backend;
 import java.sql.*;
 import java.util.ArrayList;
-
 public class db { 
     private static String Connection_String = "jdbc:sqlserver://Dc-OZER;databaseName=search_engine_db;integratedSecurity=true;encrypt=false;";
     private static String user = "sa";
     private static String pswd = "search_engine_db_S23";
     private static Connection con = null;
+    // Connections 
     public static void connect(){
         try{
             Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
@@ -29,6 +29,7 @@ public class db {
             System.out.println("Failed to disconnect from database");
         }
     }
+    //URLS
     public static boolean add_url(String url){
         // add url to the database
         try {
@@ -41,23 +42,24 @@ public class db {
             return false;
         }
     }
-    public static ArrayList<String> getVisited(){
+    public static boolean IsVisited(String url){
         // get the visited urls from the database
         try {
             //con = DriverManager.getConnection(pswd, user, Connection_String);
-            String query = "SELECT * from Docs ORDER BY (doc_id); ";
+            String query = "SELECT * from Docs where link = \' " + url +  "\';";
             Statement Stmt = con.createStatement();
-            ResultSet rs = Stmt.executeQuery(query);
-            ArrayList<String> visited = new ArrayList<String>();
-            while(rs.next()){
-                visited.add(rs.getString("link"));
+            boolean rs = Stmt.execute(query);
+            if(rs){
+                return true;
             }
-            return visited;
         } catch (Exception e) {
             System.out.println(e);
-            return null;
         }
+        return false;
     }
+    // Indexings 
+    // public static boolean add_to_ranker_dictionary(word,stemmed,pos,tag)
+    // public static boolean update_ranker_dictionary()
     public static void main(String args[]){
     }
 }
