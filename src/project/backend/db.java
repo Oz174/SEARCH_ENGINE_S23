@@ -1,4 +1,4 @@
-package project;
+package project.backend;
 import java.sql.*;
 import java.util.ArrayList;
 public class db { 
