@@ -56,6 +56,20 @@ public class db {
         }
         return false;
     }
+    public static int get_doc_id(String url){
+        // get the visited urls from the database
+        try {
+            String query = "SELECT * from Docs where link = \'" + url +  "\';";
+            Statement Stmt = con.createStatement();
+            ResultSet rs = Stmt.executeQuery(query);
+            if(rs.next()){
+                return rs.getInt("doc_id");
+            }
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+        return -1;
+    }
     // Indexings 
     // public static boolean add_to_ranker_dictionary(word,stemmed,pos,tag)
     // public static boolean update_ranker_dictionary()
