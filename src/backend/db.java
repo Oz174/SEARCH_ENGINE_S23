@@ -1,6 +1,5 @@
 package backend;
 import java.sql.*;
-import java.util.ArrayList;
 public class db { 
     private static String Connection_String = "jdbc:sqlserver://Dc-OZER;databaseName=search_engine_db;integratedSecurity=true;encrypt=false;";
     private static String user = "sa";
