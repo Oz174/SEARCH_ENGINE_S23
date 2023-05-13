@@ -1,7 +1,9 @@
-package backend;
+package project.backend;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+
+import project.db;
 
 public class Web_Indexer {
 static db data_search ;

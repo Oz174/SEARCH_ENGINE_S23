@@ -1,4 +1,4 @@
-package backend;
+package project.backend;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 
-import org.tartarus.snowball.ext.porterStemmer;
+import project.backend.org.tartarus.snowball.ext.porterStemmer;
 
 public class TextProcessor {
     private HashSet<String> stopWords;

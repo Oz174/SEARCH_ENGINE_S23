@@ -1,4 +1,4 @@
-package backend;
+package project.backend;
 import java.io.IOException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
