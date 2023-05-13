@@ -1,8 +1,8 @@
-package main;
+package project.main;
 
 import java.net.MalformedURLException;
 import java.util.ArrayList;
-
+import project.db;
 
 public class Main {
     public static void main(String[] args) throws MalformedURLException, InterruptedException {
@@ -22,24 +22,21 @@ public class Main {
         seeds.add("https://www.amazon.eg/");
         seeds.add("https://www.youm7.com");
 
-
+        //connect to the database
+        db.connect();
         //the list of URLs that have already been crawled
-        ArrayList<String> isVisited = database.getCrawled();
+        ArrayList<String> isVisited = db.getVisited();
         
         //contains the list of URLs that still need to be crawled.
-        ArrayList<String> toVisit = database.getNotCrawled();
+         ArrayList<String> toVisit = new ArrayList<String>();
         
-        System.out.println("initially to visit size before seed: "+toVisit.size());
 
         if (toVisit.isEmpty()) {
             for (String url : seeds)
                 toVisit.add(url);
         }
-        //TODO if tovisit empty add seeds
-        System.out.println("initially to visit size: "+toVisit.size());
-        System.out.println("initially visited size: "+isVisited.size());
-
-        WebCrawler crawler = new WebCrawler(toVisit, isVisited, database);
+ 
+        WebCrawler crawler = new WebCrawler(toVisit, isVisited);
         //crawler.start();
         System.out.println("threads number ");
 
@@ -51,9 +48,7 @@ public class Main {
 
         //save the list of URLs that were crawled to a file called "test.txt"
         crawler.saveUrlsToFile("test.txt");
-
-        System.out.println("finally to visit size: "+crawler.getNumberofPagesToVisit());
-        System.out.println("finally visited size: "+crawler.getNumberofVisitedPages());
+        db.disconnect();
     }
 
 }

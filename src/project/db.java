@@ -1,5 +1,6 @@
 package project;
 import java.sql.*;
+import java.util.ArrayList;
 public class db { 
     private static String Connection_String = "jdbc:sqlserver://Dc-OZER;databaseName=search_engine_db;integratedSecurity=true;encrypt=false;";
     private static String user = "sa";
@@ -41,11 +42,28 @@ public class db {
             return false;
         }
     }
-    public static boolean IsVisited(String url){
+    public static ArrayList<String> getVisited(){
         // get the visited urls from the database
+        ArrayList<String> Visited = new ArrayList<String>();
         try {
             //con = DriverManager.getConnection(pswd, user, Connection_String);
-            String query = "SELECT * from Docs where link = \' " + url +  "\';";
+            String query = "SELECT * from Docs ;" ;
+            Statement Stmt = con.createStatement();
+            ResultSet rs = Stmt.executeQuery(query);
+            while(rs.next()){
+                // get the links in the link column and add them to visited list
+                Visited.add(rs.getString("link"));
+            }
+            return Visited;
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+        return Visited;
+    }
+    public static boolean isVisited(String url){
+        // check if the url is visited before
+        try {
+            String query = "SELECT * from Docs where link = \'" + url +  "\';";
             Statement Stmt = con.createStatement();
             boolean rs = Stmt.execute(query);
             if(rs){

@@ -1,9 +1,12 @@
-package main;
+package project.main;
 
 import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
 import java.util.concurrent.*;
+
+import javax.swing.text.html.HTML;
+
 import java.util.Queue;
 
 import java.io.IOException;
@@ -14,14 +17,15 @@ import java.net.URL;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.*;
 import org.jsoup.select.*;
+import project.db;
 
-import DB.MongoDB;
+
 
 public class WebCrawler {
 	
 	private String startUrl;
-	MongoDB database;
-	private static final int MAX_TO_BE_CRAWLED = 5000;
+	private static db database;
+	private static final int MAX_TO_BE_CRAWLED = 30;
 	private static final int MAX_PER_PAGE = 10;
 
 	private ConcurrentHashMap<String, Boolean> isVisited;
@@ -35,8 +39,7 @@ public class WebCrawler {
 		return this.toVisit.size();
 	}
 
-	public WebCrawler(ArrayList <String> toVisit, ArrayList<String> visited,MongoDB database) {
-
+	public WebCrawler(ArrayList <String> toVisit, ArrayList<String> visited) {
 		this.isVisited = new ConcurrentHashMap<String, Boolean>();
 		if(visited != null)
 		{
@@ -51,7 +54,6 @@ public class WebCrawler {
 				this.toVisit.offer(url); //add() method throws error when queue is full
 			//offer() method returns false in such situation.
 		}
-		this.database = database;
 	}
 
 	private String normalizeLink(String link, String base) {
@@ -127,8 +129,6 @@ public class WebCrawler {
 			String robotFileContent = getRobotFile(url);
 			boolean isRobotAllowed = isRobotAllowed(robotFileContent, url);
 			if (!isRobotAllowed) {
-				database.removeURL(url);
-				database.removeLink(url);
 				System.out.println("-----------------ROBOT NOT ALLOWED------------------:");
 				continue;
 			}
@@ -138,43 +138,14 @@ public class WebCrawler {
 				System.out.println("-----------------VISITED BEFORE------------------:");
 				continue;
 			}
-
-			// now url is valid for crawling so get html
 			String html = getHTML(url);
 			if (html.equals("")) {
-				database.removeURL(url);
-				database.removeLink(url);
 				continue;
 			}
 			Document doc = Jsoup.parse(html);
-			// skip this url if its content already exists in db
-			if (database.getHtml(html).size() != 0) {
-				database.removeURL(url);
-				database.removeLink(url);
-				continue;
-			}
-			// add to visited list
-			// synchronized(this.isVisited) {
-			this.isVisited.put(url, true);
-			// }
-			// Insert page and its content in db
-			// synchronized(this.database) {
 
-			if (database.getURL(url).size() == 0)
-				database.InsertUrl(url, html);
-			else {// url exists in db
-				String prevHtml = "";
-				Object htmlField = database.getURL(url).get(0).get("html");
-				if (htmlField != null)
-					prevHtml = htmlField.toString();
-				if (!prevHtml.equals(html))
-					database.setContent(url, html);
-			}
-			// ArrayList<String> urlId=database.getUrlId(url);
-			// this.savehtmlToFile(urlId.get(0)+".txt",doc);
-			database.setCrawled(url);
-			// }
-			// get all links in this page
+			this.isVisited.put(url, true);
+
 
 			Elements elements = doc.select("a");
 			System.out.println("Thread " + Thread.currentThread().getName() + " visited page: " + url + " \nFound ("
@@ -187,21 +158,14 @@ public class WebCrawler {
 					// System.out.println("toVisitSize "+toVisitSize);
 				}
 				// System.out.println("visited size "+ isVisited.size());
-				if (toVisitSize + isVisited.size() <= MAX_TO_BE_CRAWLED && counter <= MAX_PER_PAGE) { // TODO: Add
-																										// visited size
-																										// to condition
+				if (toVisitSize + isVisited.size() <= MAX_TO_BE_CRAWLED && counter <= MAX_PER_PAGE) {
 					String href = e.attr("href");
 					href = normalizeLink(href, url);
 					if (href == null)
 						continue;
-					// TODO: add to database and toVisit array
+					
 					synchronized (this.toVisit) {
 						if (!this.toVisit.contains(href) && !this.isVisited.containsKey(href)) {
-							// synchronized(this.database) {
-							if (database.getURL(href).size() == 0)
-								database.InsertUrl(href);
-							database.InsertLink(database.getUrlId(url).get(0), href);
-							// }
 							this.toVisit.offer(href);
 							counter++;
 						}
