@@ -48,12 +48,12 @@ public class db {
         }
     }
 
-    public static ArrayList<String> getVisited() {
+    public static ArrayList<String> get_Crawled() {
         // get the visited urls from the database
         ArrayList<String> Visited = new ArrayList<String>();
         try {
             // con = DriverManager.getConnection(pswd, user, Connection_String);
-            String query = "SELECT * from Docs ;";
+            String query = "SELECT * from Docs where crawled = 1;";
             Statement Stmt = con.createStatement();
             ResultSet rs = Stmt.executeQuery(query);
             while (rs.next()) {
@@ -66,6 +66,45 @@ public class db {
         }
         return Visited;
     }
+    // get the non crawled websites 
+    public static ArrayList<String> get_Not_Crawled() {
+        // get the visited urls from the database
+        ArrayList<String> Not_Crawled = new ArrayList<String>();
+        try {
+            String query = "SELECT * from Docs where crawled = 0;";
+            Statement Stmt = con.createStatement();
+            ResultSet rs = Stmt.executeQuery(query);
+            while (rs.next()) {
+                // get the links in the link column and add them to visited list
+                Not_Crawled.add(rs.getString("link"));
+            }
+            return Not_Crawled;
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+        return Not_Crawled;
+    }
+    // gets the not indexed urls 
+    public static ArrayList<String> get_Not_Indexed() {
+        // get the visited urls from the database
+        ArrayList<String> Not_Indexed = new ArrayList<String>();
+        try {
+            // con = DriverManager.getConnection(pswd, user, Connection_String);
+            String query = "SELECT * from Docs WHERE indexed = 0;";
+            Statement Stmt = con.createStatement();
+            ResultSet rs = Stmt.executeQuery(query);
+            while (rs.next()) {
+                // get the links in the link column and add them to visited list
+                Not_Indexed.add(rs.getString("link"));
+            }
+            return Not_Indexed;
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+        return Not_Indexed;
+    }
+
+    
 
     public static boolean isVisited(String url) {
         // check if the url is visited before

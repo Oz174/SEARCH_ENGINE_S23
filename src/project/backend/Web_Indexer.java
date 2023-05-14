@@ -10,7 +10,7 @@ public class Web_Indexer {
     public static void main(String args[]) throws IOException {
         db.connect();
         // get urls from the database
-        ArrayList<String> urls = db.getVisited();
+        ArrayList<String> urls = db.get_Not_Indexed();
 
         // ArrayList<String> Visited = new ArrayList<String>();
         for (String url : urls) {

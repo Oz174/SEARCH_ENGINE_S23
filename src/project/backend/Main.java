@@ -26,10 +26,10 @@ public class Main {
         //connect to the database
         db.connect();
         //the list of URLs that have already been crawled
-        ArrayList<String> isVisited = db.getVisited();
+        ArrayList<String> isVisited = db.get_Crawled();
         
         //contains the list of URLs that still need to be crawled.
-         ArrayList<String> toVisit = new ArrayList<String>();
+         ArrayList<String> toVisit = db.get_Not_Crawled();
         
 
         if (toVisit.isEmpty()) {
