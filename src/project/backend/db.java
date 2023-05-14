@@ -141,8 +141,6 @@ public class db {
         try {
             for (String value : Values) {
                 String query = "INSERT INTO Ranker_Dictionary VALUES" + value + ";";
-                //print query 
-                System.out.println(query);
                 Statement Stmt = con.createStatement();
                 Stmt.execute(query);
             }
