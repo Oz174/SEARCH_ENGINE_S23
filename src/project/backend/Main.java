@@ -9,6 +9,7 @@ public class Main {
         //String startUrl="https://cu.blackboard.com";
         //Webcrawler crawler = new Webcrawler(startUrl);
         //crawler.start();
+        // TODO : NORMALIZE LINKS BECAUSE OF /// and /# w 7agat 8areba kda !!!
         /////////////////////////////////////////////
         ArrayList<String> seeds  = new ArrayList<>();
         seeds.add("https://www.geeksforgeeks.org/");
