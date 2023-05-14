@@ -1,11 +1,9 @@
 package project.backend;
-
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -19,6 +17,7 @@ import project.backend.org.tartarus.snowball.ext.porterStemmer;
 public class TextProcessor {
     private HashSet<String> stopWords;
     private HashMap<String, Integer> words;
+    public ArrayList<String> queries = new ArrayList<String>();
     public TextProcessor() throws IOException, FileNotFoundException {
         stopWords = new HashSet<String>();
         // add common stop words to the set
@@ -49,17 +48,8 @@ public class TextProcessor {
         return index;
     }
 
-    public void ProcessElements(Elements Elements, String Tag) throws IOException {
-
+    public void ProcessElements(Elements Elements, String Tag , int doc_id) throws IOException {
         words = new HashMap<String, Integer>();
-        String filename = "indices2.txt";
-        FileWriter writer;
-        File file = new File(filename);
-        if (!file.exists()) {
-            writer = new FileWriter(filename);
-        } else {
-            writer = new FileWriter(filename, true);
-        }
         int tag_counter = 0;
         for (Element E : Elements) {
             tag_counter++;
@@ -81,24 +71,18 @@ public class TextProcessor {
         }
         Iterator<Map.Entry<String, Integer>> i = words.entrySet().iterator();
         porterStemmer stemmer = new porterStemmer();
+        
         while (i.hasNext()) {
             Map.Entry<String, Integer> entry = i.next();
-            String prev_word = entry.getKey();
-            if (prev_word == "")
+            String word = entry.getKey();
+            if (word == "")
                 continue;
-            writer.write(prev_word + "," + getIndexofKey(prev_word));
-            stemmer.setCurrent(prev_word);
+            String literal = word;
+            stemmer.setCurrent(word);
             stemmer.stem();
-            prev_word = stemmer.getCurrent();
-            if(Tag != "title"){
-            writer.write("," + prev_word + "," + Tag + "," + entry.getValue());
-            }
-            else{
-            writer.write("," + prev_word + "," + Tag);
-            }
-            writer.write("\n");
+            word = stemmer.getCurrent();
+            queries.add("(" + doc_id + ",\'" + literal +"\',\'" + word + "\',\'" + Tag +"\'," + entry.getValue() + "," + getIndexofKey(literal) +")");
         }
-        writer.close();
     }
 
 }
