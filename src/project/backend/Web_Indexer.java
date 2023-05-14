@@ -3,6 +3,7 @@ package project.backend;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 
 
 public class Web_Indexer {
@@ -12,30 +13,20 @@ public class Web_Indexer {
 
     public static void main(String args[]) throws IOException {
         db.connect();
-        BufferedReader reader = new BufferedReader(new FileReader("test.txt"));
+        //get urls from the database 
+        ArrayList<String> urls = db.getVisited();
+        BufferedReader reader = new BufferedReader(new FileReader("urls.txt"));
         // ArrayList<String> Visited = new ArrayList<String>();
         TextProcessor textProcessor = new TextProcessor();
-        String line;
-        //todo needs threads addition 
-        while ((line = reader.readLine()) != null) {
-            // add each url in the database if not visited
-            if (!db.isVisited(line)) {
-                continue;
-            }
-            // add the url to the visited list
-            db.add_url(line);
+        for(String url : urls) {
             // parse the url into a document
-            Parser.Extract_Tags_from_URL(line);
+            Parser.Extract_Tags_from_URL(url);
 
-            String title = Parser.title;
-            textProcessor.ProcessElements(title,"title");
+            textProcessor.ProcessElements(Parser.title,"title");
 
-            // word , next word , stemmed , next_Stemmed , title
-            String heading = Parser.Headings.text();
-            textProcessor.ProcessElements(heading,"h1");
+            textProcessor.ProcessElements(Parser.Headings,"h1");
 
-            String paragraph = Parser.Paragraphs.text();
-            textProcessor.ProcessElements(paragraph,"p");
+            textProcessor.ProcessElements(Parser.Paragraphs,"p");
 
         }
         reader.close();

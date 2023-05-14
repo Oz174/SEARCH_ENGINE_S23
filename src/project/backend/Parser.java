@@ -6,8 +6,8 @@ import org.jsoup.select.Elements;
 
 public class Parser {
 // build a constructor that takes file name of the links to be parsed
-static String title;
-static String keywordsString;
+static Elements title;
+static Elements keywords;
 static Elements Headings;
 static Elements Paragraphs; 
 public static void Extract_Tags_from_URL(String url) throws IOException{
@@ -15,10 +15,9 @@ public static void Extract_Tags_from_URL(String url) throws IOException{
             // parse the url into a document 
             Document doc = Jsoup.connect(url).get();
             // get the title of the document 
-            title = doc.title();
+            title = doc.select("title");
             // get the keywords in meta 
-            Elements keywords = doc.select("meta[name=keywords]");
-            keywordsString = keywords.attr("content");
+            keywords = doc.select("meta[name=keywords]");
             // get the headings 
             Headings = doc.select("body h1");
             // get the paragraphs 
