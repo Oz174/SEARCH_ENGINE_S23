@@ -27,8 +27,5 @@ public static void Extract_Tags_from_URL(String url) throws IOException{
         e.printStackTrace();
     }
 }
-public static void main(String args[]) throws IOException{
-Parser.Extract_Tags_from_URL("https://whatfix.com/blog/knowledge-sharing-platforms/");
-System.out.println(Parser.Paragraphs.text());
-}
+
 }

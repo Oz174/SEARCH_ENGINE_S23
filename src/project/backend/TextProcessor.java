@@ -100,12 +100,5 @@ public class TextProcessor {
         }
         writer.close();
     }
-    // for html files , save the html tags in an external data structure and ignore
-    // the unnecessary tags
 
-    // public static void main(String args[]) throws IOException,
-    // FileNotFoundException {
-    // TextProcessor textprocessor = new TextProcessor();
-    // textprocessor.ProcessElements("jsoup.txt", "h1");
-    // }
 }
