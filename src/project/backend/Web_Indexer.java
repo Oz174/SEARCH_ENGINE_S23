@@ -26,6 +26,8 @@ public class Web_Indexer {
             textProcessor.ProcessElements(Parser.Paragraphs, "p", db.get_doc_id(url));
 
             db.add_to_ranker_dictionary(textProcessor.queries);
+
+            db.set_Indexed(url);
         }
         db.disconnect();
     }

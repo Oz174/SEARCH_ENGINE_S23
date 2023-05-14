@@ -103,7 +103,20 @@ public class db {
         }
         return Not_Indexed;
     }
-
+    
+    // set the indexed urls 
+    public static boolean set_Indexed(String url) {
+        // get the visited urls from the database
+        try {
+            String query = "UPDATE Docs SET indexed = 1 WHERE link = \'" + url + "\';";
+            Statement Stmt = con.createStatement();
+            Stmt.execute(query);
+            return true;
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+        return false;
+    }
     
 
     public static boolean isVisited(String url) {
