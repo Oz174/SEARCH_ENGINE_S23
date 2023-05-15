@@ -11,7 +11,6 @@ public class Main {
         //Webcrawler crawler = new Webcrawler(startUrl);
         //crawler.start();
         // TODO : CLEAN LINKS BECAUSE OF /// and /# w 7agat 8areba kda !!!
-        // TODO : some seeds are arabic words or closed zy el blackboard kda
         // TODO : check on crawler class and test on your own database (meeting nstbha sawa aw mmkn adeky el usb)
         // TODO : Check the db.java for any function you may use + I've added two columns (crawled and indexed) bs you use crawled bs
         /////////////////////////////////////////////
@@ -21,11 +20,12 @@ public class Main {
         seeds.add("https://www.spotify.com/eg-en/");
         seeds.add("https://edition.cnn.com/");
         seeds.add("https://en.wikipedia.org/wiki/Main_Page");
-        seeds.add("https://cu.blackboard.com");
         seeds.add("https://www.coursera.org/");
-        seeds.add("https://www.javatpoint.com/");
+        seeds.add("https://www.stackoverflow.com/");
         seeds.add("https://www.amazon.eg/");
-        seeds.add("https://www.youm7.com");
+        seeds.add("https://www.espn.com/");
+        seeds.add("https://www.webmd.com/");
+        seeds.add("https://www.wired.com/");
 
         //connect to the database
         db.connect();

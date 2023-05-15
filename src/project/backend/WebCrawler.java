@@ -17,7 +17,7 @@ import org.jsoup.select.*;
 public class WebCrawler {
 
 	public static db database;
-	private static final int MAX_TO_BE_CRAWLED = 10;
+	private static final int MAX_TO_BE_CRAWLED = 50;
 	private static final int MAX_PER_PAGE = 10;
 
 	private ConcurrentHashMap<String, Boolean> isVisited;
@@ -144,46 +144,43 @@ public class WebCrawler {
 
 			if (db.get_doc_id(url) == -1)
 				db.add_url(url);
-			// else {// url exists in db
-			// String prevHtml = "";
-			// Object htmlField = database.getURL(url).get(0).get("html");
-			// if (htmlField != null)
-			// prevHtml = htmlField.toString();
-			// if (!prevHtml.equals(html))
-			// database.setContent(url, html);
-			// }
-			// }
 			// get all links in this page
-			
+
 			Elements elements = doc.select("a");
 			System.out.println("Thread " + Thread.currentThread().getName() + " visited page: " + url + " \nFound ("
-			+ elements.size() + ") link(s)");
+					+ elements.size() + ") link(s)");
 			int counter = 0;
+			boolean completelyCrawled = true;
 			for (Element e : elements) {
-				
+
 				synchronized (toVisit) {
 					toVisitSize = toVisit.size();
 				}
-				
+
 				if (toVisitSize + isVisited.size() <= MAX_TO_BE_CRAWLED && counter <= MAX_PER_PAGE) {
 					String href = e.attr("href");
 					href = normalizeLink(href, url);
 					if (href == null)
-					continue;
-					
+						continue;
+
 					synchronized (this.toVisit) {
 						if (!this.toVisit.contains(href) && !this.isVisited.containsKey(href)) {
 							if (db.get_doc_id(url) == -1)
-							//db.add_url(href); // should be filtered (by regex) first
-							db.add_url(url); //todo : filter by regex
+								// db.add_url(href); // should be filtered (by regex) first
+								db.add_url(url); // todo : filter by regex
 							this.toVisit.offer(href);
 							counter++;
 						}
 					}
-				} else
+					continue;
+				}
+				if (counter <= MAX_PER_PAGE) {
+					completelyCrawled = false;
+				}
 				break;
 			}
-			db.set_crawled(url);
+			if (completelyCrawled)
+				db.set_crawled(url);
 		}
 	}
 
