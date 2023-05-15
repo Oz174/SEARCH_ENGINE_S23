@@ -17,7 +17,7 @@ import org.jsoup.select.*;
 public class WebCrawler {
 
 	public static db database;
-	private static final int MAX_TO_BE_CRAWLED = 5000;
+	private static final int MAX_TO_BE_CRAWLED = 10;
 	private static final int MAX_PER_PAGE = 10;
 
 	private ConcurrentHashMap<String, Boolean> isVisited;
@@ -176,7 +176,7 @@ public class WebCrawler {
 						if (!this.toVisit.contains(href) && !this.isVisited.containsKey(href)) {
 							if (db.get_doc_id(url) == -1)
 							//db.add_url(href); // should be filtered (by regex) first
-							db.add_url(url);
+							db.add_url(url); //todo : filter by regex
 							this.toVisit.offer(href);
 							counter++;
 						}
@@ -281,7 +281,7 @@ public class WebCrawler {
 
 			for (Object url : this.isVisited.keySet()) {
 				try {
-					writer.write("\n" + url);
+					writer.write(url + "\n");
 				} catch (IOException e) {
 					System.err.println(e.getMessage());
 				}

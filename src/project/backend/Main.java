@@ -11,6 +11,7 @@ public class Main {
         //Webcrawler crawler = new Webcrawler(startUrl);
         //crawler.start();
         // TODO : CLEAN LINKS BECAUSE OF /// and /# w 7agat 8areba kda !!!
+        // TODO : some seeds are arabic words or closed zy el blackboard kda
         // TODO : check on crawler class and test on your own database (meeting nstbha sawa aw mmkn adeky el usb)
         // TODO : Check the db.java for any function you may use + I've added two columns (crawled and indexed) bs you use crawled bs
         /////////////////////////////////////////////
@@ -41,8 +42,6 @@ public class Main {
         }
  
         WebCrawler crawler = new WebCrawler(toVisit, isVisited,sql_db);
-        //crawler.start();
-        System.out.println("threads number ");
 
         int NO_threads = 10;
         Thread [] t = new Thread [NO_threads];
