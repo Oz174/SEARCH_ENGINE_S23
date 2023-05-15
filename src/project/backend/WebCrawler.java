@@ -175,7 +175,7 @@ public class WebCrawler {
 					synchronized (this.toVisit) {
 						if (!this.toVisit.contains(href) && !this.isVisited.containsKey(href)) {
 							if (db.get_doc_id(url) == -1)
-								db.add_url(href); // should be filtered (by regex) first
+							//db.add_url(href); // should be filtered (by regex) first
 							db.add_url(url);
 							this.toVisit.offer(href);
 							counter++;
