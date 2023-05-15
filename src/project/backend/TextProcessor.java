@@ -14,6 +14,7 @@ import project.backend.org.tartarus.snowball.ext.porterStemmer;
 
 public class TextProcessor {
     private HashSet<String> stopWords;
+    public porterStemmer stemmer = new porterStemmer();
     public ArrayList<String> queries = new ArrayList<String>();
 
     public TextProcessor() throws IOException, FileNotFoundException {
@@ -27,35 +28,53 @@ public class TextProcessor {
         stopwords.close();
     }
 
+
+    private void processToken(String token, int doc_id, String Tag, int tag_counter, int word_pos) {
+        try {
+            Integer.parseInt(token);
+            return;
+        } catch (NumberFormatException e) {
+        }
+        String word = token.toLowerCase().replaceAll("[^a-z]", "");
+        if (!stopWords.contains(word)) {
+            if (word.equals(""))
+                return;
+            String literal = word;
+            stemmer.setCurrent(word);
+            stemmer.stem();
+            word = stemmer.getCurrent();
+            queries.add("(" + doc_id + ",\'" + literal + "\',\'" + word + "\',\'" + Tag + "\',"
+                    + tag_counter + "," + word_pos + ")");
+        }
+    }
+
     public void ProcessElements(Elements Elements, String Tag, int doc_id) throws IOException {
         int tag_counter = 0;
-        porterStemmer stemmer = new porterStemmer();
         for (Element E : Elements) {
             int word_pos = 0;
             tag_counter++;
             String[] tokens = new String[0];
-            tokens = E.text().split("\\s+");
+            tokens = E.ownText().split("\\s+");
             for (String token : tokens) {
-                // check if the token can be parsed to an integer
-                try {
-                    Integer.parseInt(token);
-                    continue;
-                } catch (NumberFormatException e) {
-                }
-                String word = token.toLowerCase().replaceAll("[^a-z]", "");
-                if (!stopWords.contains(word)) {
-                    if (word.equals(""))
-                        continue;
-                    word_pos++;
-                    String literal = word;
-                    stemmer.setCurrent(word);
-                    stemmer.stem();
-                    word = stemmer.getCurrent();
-                    queries.add("(" + doc_id + ",\'" + literal + "\',\'" + word + "\',\'" + Tag + "\',"
-                            + tag_counter + "," + word_pos + ")");
-                }
+                word_pos++;
+                processToken(token, doc_id, Tag, tag_counter, word_pos);
             }
-            break;
+        }
+    }
+
+    public void ProcessKeywords(Elements keywords, int doc_id){
+        if (keywords.isEmpty())
+            return;
+        String[] keywords_list = keywords.first().attr("content").split(",\\s*");
+        int tag_counter = 0;
+        for (String keyword_phrase : keywords_list){
+            tag_counter++;
+            int word_pos = 0;
+            String[] tokens = keyword_phrase.split("\\s+");
+            for (String token : tokens){
+                word_pos++;
+                processToken(token, doc_id, "keyword", tag_counter, word_pos);
+            }
         }
     }
 

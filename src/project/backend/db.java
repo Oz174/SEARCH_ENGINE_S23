@@ -181,7 +181,7 @@ public class db {
     public static ArrayList<String> get_link_from_indexed_word(String word) {
         ArrayList<String> links = new ArrayList<String>();
         try {
-            String query = "SELECT link FROM Ranker_Dictionary JOIN Docs ON Ranker_Dictionary.doc_id = Docs.doc_id WHERE word =  \'" + word + "\';";
+            String query = "SELECT DISTINCT link FROM Ranker_Dictionary JOIN Docs ON Ranker_Dictionary.doc_id = Docs.doc_id WHERE word =  \'" + word + "\';";
             Statement Stmt = con.createStatement();
             ResultSet rs = Stmt.executeQuery(query);
             while (rs.next()) {

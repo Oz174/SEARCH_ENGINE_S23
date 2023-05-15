@@ -1,5 +1,8 @@
 package project.backend;
 import java.io.IOException;
+
+// import javax.swing.text.html.parser.Element;
+
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
@@ -22,7 +25,7 @@ public static void Extract_Tags_from_URL(String url) throws IOException{
             Headings = doc.select("body h1");
             // get the paragraphs 
             Paragraphs = doc.select("body p");
-            // write the parsed data into a text file 
+ 
     } catch (IOException e) {
         e.printStackTrace();
     }

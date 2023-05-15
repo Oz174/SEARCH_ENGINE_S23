@@ -3,6 +3,8 @@ package project.backend;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import project.backend.org.tartarus.snowball.ext.porterStemmer;
+
 public class Web_Indexer {
     static db data_search;
     static Parser jsoup_parser;
@@ -25,10 +27,17 @@ public class Web_Indexer {
 
             textProcessor.ProcessElements(Parser.Paragraphs, "p", db.get_doc_id(url));
 
+            textProcessor.ProcessKeywords(Parser.keywords , db.get_doc_id(url));
+
             db.add_to_ranker_dictionary(textProcessor.queries);
 
             db.set_Indexed(url);
         }
+        System.out.println("Done!");
+        porterStemmer stemmer = new porterStemmer();
+        stemmer.setCurrent("india");
+        stemmer.stem();
+        System.out.println(db.get_link_from_indexed_word(stemmer.getCurrent()));
         db.disconnect();
     }
 }

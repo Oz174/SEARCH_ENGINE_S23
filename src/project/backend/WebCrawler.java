@@ -3,11 +3,10 @@ package project.backend;
 import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.concurrent.*;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
 import java.net.URL;
 
 import org.jsoup.Jsoup;
@@ -48,62 +47,29 @@ public class WebCrawler {
 		database = sql;
 	}
 
-	private String normalizeLink(String link, String base) {
-
+	private String normalizeLink(String url) {
+		// try {
+		if (url == null || url.equals(""))
+			return null;
+		url = url.replaceAll("^(.*?)(#.*)+$", "$1$2");
+		url = url.replaceAll("^(https?://[^/]+)(/+)(.*)$", "$1/$3");
+		// last char in url
+		char lastChar = url.charAt(url.length() - 1);
+		if (lastChar != '/')
+			url += '/';
 		try {
-			URL u = new URL(base);
-			if (link.startsWith("./")) {
-				link = link.substring(1, link.length());
-				// form the full link
-				link = u.getProtocol() + "://" + u.getAuthority() + rmvFileFromPath(u.getPath()) + link;
-			} else if (link.startsWith("#")) {
-				link = base + "/" + link;
-			} else if (link.startsWith("javascript")) {
-				link = null;
-			} else if (link.startsWith("/") || link.startsWith("../")
-					|| (!link.startsWith("http://") && !link.startsWith("https://"))) {
-
-				link = u.getProtocol() + "://" + u.getAuthority() + rmvFileFromPath(u.getPath()) + link;
-			}
-			if (link != null)
-				link = link.toLowerCase();
-			return link;
-
-		} catch (Exception e) {
-			e.printStackTrace();
+			new URL(url);
+		} catch (MalformedURLException e) {
 			return null;
 		}
+		return url;
+		// } catch (Exception e) {
+		// e.printStackTrace();
+		// return null;
+		// }
 	}
 
-	private String getHTML(String url) {
-		URL u;
-		try {
-			u = new URL(url);
-			HttpURLConnection connection = (HttpURLConnection) u.openConnection();
-			connection.setRequestProperty("User-Agent", "BBot/1.0");
-			connection.setRequestProperty("Accept-Charset", "UTF-8");
-			int r_code = connection.getResponseCode();
-			if (r_code == HttpURLConnection.HTTP_OK) {
-				InputStream is = connection.getInputStream();
-				BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-
-				String line;
-				String html = "";
-				while ((line = reader.readLine()) != null) {
-					html += line + "\n";
-				}
-				html = html.trim();
-				return html;
-			}
-
-		} catch (Exception e) {
-			e.printStackTrace();
-			return "";
-		}
-		return "";
-	}
-
-	public void crawl2() throws MalformedURLException {
+	public void crawl2(){
 		int toVisitSize = 0;
 		synchronized (toVisit) {
 			toVisitSize = toVisit.size();
@@ -117,8 +83,14 @@ public class WebCrawler {
 				continue;
 
 			// 2 --> check if robot is allowed
-			String robotFileContent = getRobotFile(url);
-			boolean isRobotAllowed = isRobotAllowed(robotFileContent, url);
+			boolean isRobotAllowed = false;
+			try {
+				String robotFileContent = getRobotFile(url);
+				isRobotAllowed = isRobotAllowed(robotFileContent, url);
+			} catch (MalformedURLException e) {
+				db.remove_url(url);
+				continue;
+			}
 			if (!isRobotAllowed) {
 				db.remove_url(url);
 
@@ -131,15 +103,16 @@ public class WebCrawler {
 				System.out.println("-----------------VISITED BEFORE------------------:");
 				continue;
 			}
-
-			// now url is valid for crawling so get html
-			String html = getHTML(url);
-			if (html.equals("")) {
+			//Get html document
+			Document doc = null;
+			try {
+				doc = Jsoup.connect(url).get();
+			}
+			catch (Exception e) {
 				db.remove_url(url);
-
 				continue;
 			}
-			Document doc = Jsoup.parse(html);
+
 			this.isVisited.put(url, true);
 
 			if (db.get_doc_id(url) == -1)
@@ -151,6 +124,7 @@ public class WebCrawler {
 					+ elements.size() + ") link(s)");
 			int counter = 0;
 			boolean completelyCrawled = true;
+			Collections.shuffle(elements);
 			for (Element e : elements) {
 
 				synchronized (toVisit) {
@@ -158,16 +132,14 @@ public class WebCrawler {
 				}
 
 				if (toVisitSize + isVisited.size() <= MAX_TO_BE_CRAWLED && counter <= MAX_PER_PAGE) {
-					String href = e.attr("href");
-					href = normalizeLink(href, url);
+					String href = e.absUrl("href");
+					// Clean link here
+					href = normalizeLink(href);
 					if (href == null)
 						continue;
-
 					synchronized (this.toVisit) {
-						if (!this.toVisit.contains(href) && !this.isVisited.containsKey(href)) {
-							if (db.get_doc_id(url) == -1)
-								// db.add_url(href); // should be filtered (by regex) first
-								db.add_url(url); // todo : filter by regex
+						if (!this.toVisit.contains(href) && !this.isVisited.containsKey(href) && db.get_doc_id(href) == -1) {
+							db.add_url(href);
 							this.toVisit.offer(href);
 							counter++;
 						}
@@ -179,21 +151,21 @@ public class WebCrawler {
 				}
 				break;
 			}
+			synchronized (toVisit) {
+				toVisitSize = toVisit.size();
+			}
 			if (completelyCrawled)
 				db.set_crawled(url);
 		}
 	}
 
-	private String rmvFileFromPath(String path) {
-		int pos = path.lastIndexOf("/");
-		return pos <= -1 ? path : path.substring(0, pos + 1);
-	}
-
 	public String getRobotFile(String url) throws MalformedURLException {
-
 		URL u = new URL(url);
 
-		String robotFile = u.getProtocol() + "://" + u.getHost() + "/robots.txt";
+		String domain = u.getHost();
+		String[] parts = domain.split("\\.");
+		domain = parts[parts.length - 2] + "." + parts[parts.length - 1];
+		String robotFile = u.getProtocol() + "://" + domain + "/robots.txt";		
 		URL robotUrl;
 		try {
 			robotUrl = new URL(robotFile);
@@ -315,12 +287,6 @@ class webCrawlerRunnable implements Runnable {
 	}
 
 	public void run() {
-
-		try {
-			webCrawler.crawl2();
-
-		} catch (MalformedURLException e) {
-			e.printStackTrace();
-		}
+		webCrawler.crawl2();
 	}
 }
