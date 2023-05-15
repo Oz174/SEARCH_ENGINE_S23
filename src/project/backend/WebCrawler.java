@@ -152,26 +152,25 @@ public class WebCrawler {
 			// if (!prevHtml.equals(html))
 			// database.setContent(url, html);
 			// }
-			db.set_crawled(url);
 			// }
 			// get all links in this page
-
+			
 			Elements elements = doc.select("a");
 			System.out.println("Thread " + Thread.currentThread().getName() + " visited page: " + url + " \nFound ("
-					+ elements.size() + ") link(s)");
+			+ elements.size() + ") link(s)");
 			int counter = 0;
 			for (Element e : elements) {
-
+				
 				synchronized (toVisit) {
 					toVisitSize = toVisit.size();
 				}
-
+				
 				if (toVisitSize + isVisited.size() <= MAX_TO_BE_CRAWLED && counter <= MAX_PER_PAGE) {
 					String href = e.attr("href");
 					href = normalizeLink(href, url);
 					if (href == null)
-						continue;
-
+					continue;
+					
 					synchronized (this.toVisit) {
 						if (!this.toVisit.contains(href) && !this.isVisited.containsKey(href)) {
 							if (db.get_doc_id(url) == -1)
@@ -182,8 +181,9 @@ public class WebCrawler {
 						}
 					}
 				} else
-					break;
+				break;
 			}
+			db.set_crawled(url);
 		}
 	}
 

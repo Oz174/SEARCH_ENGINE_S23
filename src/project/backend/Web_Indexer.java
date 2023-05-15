@@ -29,8 +29,6 @@ public class Web_Indexer {
 
             db.set_Indexed(url);
         }
-        ArrayList<String> relevant_url = db.get_link_from_indexed_word("intj");
-        System.out.println(relevant_url);
         db.disconnect();
     }
 }
