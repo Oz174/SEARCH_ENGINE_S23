@@ -1,5 +1,4 @@
 package project.backend;
-
 import java.sql.*;
 import java.util.ArrayList;
 
@@ -176,6 +175,23 @@ public class db {
             System.out.println(e);
         }
         return false;
+    }
+
+    // Get link from indexed word 
+    public static ArrayList<String> get_link_from_indexed_word(String word) {
+        ArrayList<String> links = new ArrayList<String>();
+        try {
+            String query = "SELECT link FROM Ranker_Dictionary JOIN Docs ON Ranker_Dictionary.doc_id = Docs.doc_id WHERE word =  \'" + word + "\';";
+            Statement Stmt = con.createStatement();
+            ResultSet rs = Stmt.executeQuery(query);
+            while (rs.next()) {
+                links.add(rs.getString("link"));
+            }
+            return links;
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+        return links;
     }
 
     // public static boolean update_ranker_dictionary(){}
