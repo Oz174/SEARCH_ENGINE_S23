@@ -4,6 +4,7 @@ import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
 import java.util.concurrent.*;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -14,7 +15,9 @@ import org.jsoup.nodes.*;
 import org.jsoup.select.*;
 
 public class WebCrawler {
-	private static final int MAX_TO_BE_CRAWLED = 30;
+
+	public static db database;
+	private static final int MAX_TO_BE_CRAWLED = 5000;
 	private static final int MAX_PER_PAGE = 10;
 
 	private ConcurrentHashMap<String, Boolean> isVisited;
@@ -28,7 +31,8 @@ public class WebCrawler {
 		return this.toVisit.size();
 	}
 
-	public WebCrawler(ArrayList<String> toVisit, ArrayList<String> visited) {
+	public WebCrawler(ArrayList<String> toVisit, ArrayList<String> visited, db sql) {
+
 		this.isVisited = new ConcurrentHashMap<String, Boolean>();
 		if (visited != null) {
 			for (String url : visited) {
@@ -41,6 +45,7 @@ public class WebCrawler {
 				this.toVisit.offer(url); // add() method throws error when queue is full
 			// offer() method returns false in such situation.
 		}
+		database = sql;
 	}
 
 	private String normalizeLink(String link, String base) {
@@ -102,7 +107,6 @@ public class WebCrawler {
 		int toVisitSize = 0;
 		synchronized (toVisit) {
 			toVisitSize = toVisit.size();
-			// System.out.println(toVisitSize);
 		}
 		while (toVisitSize != 0) {
 			if (toVisit.size() == 0)
@@ -116,6 +120,8 @@ public class WebCrawler {
 			String robotFileContent = getRobotFile(url);
 			boolean isRobotAllowed = isRobotAllowed(robotFileContent, url);
 			if (!isRobotAllowed) {
+				db.remove_url(url);
+
 				System.out.println("-----------------ROBOT NOT ALLOWED------------------:");
 				continue;
 			}
@@ -125,13 +131,30 @@ public class WebCrawler {
 				System.out.println("-----------------VISITED BEFORE------------------:");
 				continue;
 			}
+
+			// now url is valid for crawling so get html
 			String html = getHTML(url);
 			if (html.equals("")) {
+				db.remove_url(url);
+
 				continue;
 			}
 			Document doc = Jsoup.parse(html);
-
 			this.isVisited.put(url, true);
+
+			if (db.get_doc_id(url) == -1)
+				db.add_url(url);
+			// else {// url exists in db
+			// String prevHtml = "";
+			// Object htmlField = database.getURL(url).get(0).get("html");
+			// if (htmlField != null)
+			// prevHtml = htmlField.toString();
+			// if (!prevHtml.equals(html))
+			// database.setContent(url, html);
+			// }
+			db.set_crawled(url);
+			// }
+			// get all links in this page
 
 			Elements elements = doc.select("a");
 			System.out.println("Thread " + Thread.currentThread().getName() + " visited page: " + url + " \nFound ("
@@ -141,9 +164,8 @@ public class WebCrawler {
 
 				synchronized (toVisit) {
 					toVisitSize = toVisit.size();
-					// System.out.println("toVisitSize "+toVisitSize);
 				}
-				// System.out.println("visited size "+ isVisited.size());
+
 				if (toVisitSize + isVisited.size() <= MAX_TO_BE_CRAWLED && counter <= MAX_PER_PAGE) {
 					String href = e.attr("href");
 					href = normalizeLink(href, url);
@@ -152,6 +174,9 @@ public class WebCrawler {
 
 					synchronized (this.toVisit) {
 						if (!this.toVisit.contains(href) && !this.isVisited.containsKey(href)) {
+							if (db.get_doc_id(url) == -1)
+								db.add_url(href); // should be filtered (by regex) first
+							db.add_url(url);
 							this.toVisit.offer(href);
 							counter++;
 						}

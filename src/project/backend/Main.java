@@ -5,11 +5,14 @@ import java.util.ArrayList;
 
 
 public class Main {
+    public static db sql_db; 
     public static void main(String[] args) throws MalformedURLException, InterruptedException {
         //String startUrl="https://cu.blackboard.com";
         //Webcrawler crawler = new Webcrawler(startUrl);
         //crawler.start();
-        // TODO : NORMALIZE LINKS BECAUSE OF /// and /# w 7agat 8areba kda !!!
+        // TODO : CLEAN LINKS BECAUSE OF /// and /# w 7agat 8areba kda !!!
+        // TODO : check on crawler class and test on your own database (meeting nstbha sawa aw mmkn adeky el usb)
+        // TODO : Check the db.java for any function you may use + I've added two columns (crawled and indexed) bs you use crawled bs
         /////////////////////////////////////////////
         ArrayList<String> seeds  = new ArrayList<>();
         seeds.add("https://www.geeksforgeeks.org/");
@@ -37,7 +40,7 @@ public class Main {
                 toVisit.add(url);
         }
  
-        WebCrawler crawler = new WebCrawler(toVisit, isVisited);
+        WebCrawler crawler = new WebCrawler(toVisit, isVisited,sql_db);
         //crawler.start();
         System.out.println("threads number ");
 

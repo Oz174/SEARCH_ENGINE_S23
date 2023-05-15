@@ -33,21 +33,49 @@ public class db {
             System.out.println("Failed to disconnect from database");
         }
     }
-
-    // URLS
+                                            // Crawler // 
+    // URLS added by this function are assumed not crawled unless set with the function setCrawled
     public static boolean add_url(String url) {
         // add url to the database
         try {
-            String query = "INSERT INTO Docs VALUES (\'" + url + "\');";
+            String query = "INSERT INTO Docs VALUES (\'" + url + "\'," + "0,0);";
             Statement Stmt = con.createStatement();
-            boolean isResult = Stmt.execute(query);
-            return isResult;
+            Stmt.execute(query);
+            return true;
         } catch (Exception e) {
             System.out.println("Failed to add url to the database");
             return false;
         }
     }
 
+    //remove url 
+    public static boolean remove_url(String url) {
+        // remove url from the database
+        try {
+            String query = "DELETE FROM Docs WHERE link = \'" + url + "\';";
+            Statement Stmt = con.createStatement();
+            Stmt.execute(query);
+            return true;
+        } catch (Exception e) {
+            System.out.println("Failed to remove url from the database");
+            return false;
+        }
+    }
+    //set crawled 
+    public static boolean set_crawled(String url) {
+        // set the crawled column to 1
+        try {
+            String query = "UPDATE Docs SET crawled = 1 WHERE link = \'" + url + "\';";
+            Statement Stmt = con.createStatement();
+            Stmt.execute(query);
+            return true;
+        } catch (Exception e) {
+            System.out.println("Failed to set crawled to 1");
+            return false;
+        }
+    }
+
+    //get crawled
     public static ArrayList<String> get_Crawled() {
         // get the visited urls from the database
         ArrayList<String> Visited = new ArrayList<String>();
@@ -83,7 +111,10 @@ public class db {
             System.out.println(e);
         }
         return Not_Crawled;
+        
     }
+                                            // Indexer //   
+
     // gets the not indexed urls 
     public static ArrayList<String> get_Not_Indexed() {
         // get the visited urls from the database
@@ -103,7 +134,6 @@ public class db {
         }
         return Not_Indexed;
     }
-    
     // set the indexed urls 
     public static boolean set_Indexed(String url) {
         // get the visited urls from the database
@@ -117,23 +147,7 @@ public class db {
         }
         return false;
     }
-    
-
-    public static boolean isVisited(String url) {
-        // check if the url is visited before
-        try {
-            String query = "SELECT * from Docs where link = \'" + url + "\';";
-            Statement Stmt = con.createStatement();
-            boolean rs = Stmt.execute(query);
-            if (rs) {
-                return true;
-            }
-        } catch (Exception e) {
-            System.out.println(e);
-        }
-        return false;
-    }
-
+    // returns the doc_id for the given link , if not , returns -1
     public static int get_doc_id(String url) {
         // get the visited urls from the database
         try {
