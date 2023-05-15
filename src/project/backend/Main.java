@@ -9,17 +9,17 @@ public class Main {
     public static void main(String[] args) throws MalformedURLException, InterruptedException {
         /////////////////////////////////////////////
         ArrayList<String> seeds  = new ArrayList<>();
-        seeds.add("https://www.geeksforgeeks.org/");
-        seeds.add("https://www.imdb.com/");
-        seeds.add("https://www.spotify.com/eg-en/");
-        seeds.add("https://edition.cnn.com/");
+        seeds.add("https://www.geeksforgeeks.org");
+        seeds.add("https://www.imdb.com");
+        seeds.add("https://www.spotify.com/eg-en");
+        seeds.add("https://edition.cnn.com");
         seeds.add("https://en.wikipedia.org/wiki/Main_Page");
-        seeds.add("https://www.coursera.org/");
-        seeds.add("https://www.stackoverflow.com/");
-        seeds.add("https://www.amazon.eg/");
-        seeds.add("https://www.espn.com/");
-        seeds.add("https://www.webmd.com/");
-        seeds.add("https://www.wired.com/");
+        seeds.add("https://www.coursera.org");
+        seeds.add("https://www.stackoverflow.com");
+        // seeds.add("https://www.amazon.eg");
+        seeds.add("https://www.espn.com");
+        seeds.add("https://www.webmd.com");
+        seeds.add("https://www.wired.com");
 
         //connect to the database
         db.connect();

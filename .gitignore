@@ -1,6 +1,5 @@
 *.env
 *.txt
 *.html
-*.md
 bin/
 lib/

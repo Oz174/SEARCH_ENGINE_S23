@@ -8,6 +8,7 @@ import java.util.concurrent.*;
 
 import java.io.IOException;
 import java.net.URL;
+import java.net.URLConnection;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.*;
@@ -16,7 +17,7 @@ import org.jsoup.select.*;
 public class WebCrawler {
 
 	public static db database;
-	private static final int MAX_TO_BE_CRAWLED = 50;
+	private static final int MAX_TO_BE_CRAWLED = 300;
 	private static final int MAX_PER_PAGE = 10;
 
 	private ConcurrentHashMap<String, Boolean> isVisited;
@@ -51,12 +52,12 @@ public class WebCrawler {
 		// try {
 		if (url == null || url.equals(""))
 			return null;
-		url = url.replaceAll("^(.*?)(#.*)+$", "$1$2");
+		url = url.replaceAll("^(.*?)(#.*)+$", "$1");
 		url = url.replaceAll("^(https?://[^/]+)(/+)(.*)$", "$1/$3");
 		// last char in url
 		char lastChar = url.charAt(url.length() - 1);
-		if (lastChar != '/')
-			url += '/';
+		if (lastChar == '/')
+			url = url.substring(0, url.length() - 1);
 		try {
 			new URL(url);
 		} catch (MalformedURLException e) {
@@ -69,93 +70,80 @@ public class WebCrawler {
 		// }
 	}
 
-	public void crawl2(){
-		int toVisitSize = 0;
-		synchronized (toVisit) {
-			toVisitSize = toVisit.size();
-		}
-		while (toVisitSize != 0) {
-			if (toVisit.size() == 0)
-				return;
+	public void crawl2() {
+		while (toVisit.size() != 0) {
 			// 1- pop one url from tovisit array
-			String url = this.toVisit.poll();
-			if (url == null)
-				continue;
-
-			// 2 --> check if robot is allowed
-			boolean isRobotAllowed = false;
-			try {
-				String robotFileContent = getRobotFile(url);
-				isRobotAllowed = isRobotAllowed(robotFileContent, url);
-			} catch (MalformedURLException e) {
-				db.remove_url(url);
-				continue;
-			}
-			if (!isRobotAllowed) {
-				db.remove_url(url);
-
-				System.out.println("-----------------ROBOT NOT ALLOWED------------------:");
-				continue;
+			String url;
+			synchronized (toVisit) {
+				url = toVisit.poll();
+				if (url == null)
+					break;
 			}
 
-			// 2 --> check if url is visited before
-			if (this.isVisited.containsKey(url)) {
+			// 2 - check if url is visited before
+			if (isVisited.containsKey(url)) {
 				System.out.println("-----------------VISITED BEFORE------------------:");
 				continue;
 			}
-			//Get html document
-			Document doc = null;
+
+			// 3 - check if robot is allowed
 			try {
-				doc = Jsoup.connect(url).get();
-			}
-			catch (Exception e) {
+				String robotFileContent = getRobotFile(url);
+				if (!isRobotAllowed(robotFileContent, url)) {
+					db.remove_url(url);
+					System.out.println("-----------------ROBOT NOT ALLOWED------------------:");
+					continue;
+				}
+			} catch (MalformedURLException e) {
 				db.remove_url(url);
+				System.out.println("-----------------ROBOTS.TXT NOT FOUND------------------:");
 				continue;
 			}
 
-			this.isVisited.put(url, true);
+			// 4 - Get html document
+			Document doc = null;
+			try {
+				doc = Jsoup.connect(url).get();
+			} catch (IOException e) {
+				db.remove_url(url);
+				continue;
+			}
+			isVisited.put(url, true);
 
-			if (db.get_doc_id(url) == -1)
-				db.add_url(url);
-			// get all links in this page
-
+			// 5 - Get all links in this page, shuffle for randomization
 			Elements elements = doc.select("a");
 			System.out.println("Thread " + Thread.currentThread().getName() + " visited page: " + url + " \nFound ("
 					+ elements.size() + ") link(s)");
 			int counter = 0;
-			boolean completelyCrawled = true;
 			Collections.shuffle(elements);
 			for (Element e : elements) {
-
-				synchronized (toVisit) {
-					toVisitSize = toVisit.size();
-				}
-
-				if (toVisitSize + isVisited.size() <= MAX_TO_BE_CRAWLED && counter <= MAX_PER_PAGE) {
-					String href = e.absUrl("href");
-					// Clean link here
-					href = normalizeLink(href);
-					if (href == null)
+				// 6 - check if we reached max number of pages
+				if (toVisit.size() + isVisited.size() > MAX_TO_BE_CRAWLED)
+					return;
+				// 7 - check if we reached max number of pages per site
+				if (counter > MAX_PER_PAGE)
+					break;
+				// 8 - check if link is valid
+				String href = normalizeLink(e.absUrl("href"));
+				if (href == null)
+					continue;
+				// 9 - check if link is html
+				try {
+					URL test = new URL(href);
+					URLConnection connection = test.openConnection();
+					String contentType = connection.getContentType();
+					if (contentType == null || ! contentType.contains("text/html"))
 						continue;
-					synchronized (this.toVisit) {
-						if (!this.toVisit.contains(href) && !this.isVisited.containsKey(href) && db.get_doc_id(href) == -1) {
-							db.add_url(href);
-							this.toVisit.offer(href);
-							counter++;
-						}
-					}
+				} catch (IOException exp) {
 					continue;
 				}
-				if (counter <= MAX_PER_PAGE) {
-					completelyCrawled = false;
+				if (!this.toVisit.contains(href) && !this.isVisited.containsKey(href) && db.get_doc_id(href) == -1){
+					db.add_url(href);
+					toVisit.offer(href);
+					counter++;
 				}
-				break;
 			}
-			synchronized (toVisit) {
-				toVisitSize = toVisit.size();
-			}
-			if (completelyCrawled)
-				db.set_crawled(url);
+			db.set_crawled(url);
 		}
 	}
 
@@ -164,8 +152,9 @@ public class WebCrawler {
 
 		String domain = u.getHost();
 		String[] parts = domain.split("\\.");
-		domain = parts[parts.length - 2] + "." + parts[parts.length - 1];
-		String robotFile = u.getProtocol() + "://" + domain + "/robots.txt";		
+		if (parts.length > 2)
+			domain = parts[parts.length - 2] + "." + parts[parts.length - 1];
+		String robotFile = u.getProtocol() + "://" + domain + "/robots.txt";
 		URL robotUrl;
 		try {
 			robotUrl = new URL(robotFile);
