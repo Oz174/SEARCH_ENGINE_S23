@@ -27,12 +27,11 @@ public class TextProcessor {
         stopwords.close();
     }
 
-
     public void ProcessElements(Elements Elements, String Tag, int doc_id) throws IOException {
         int tag_counter = 0;
         porterStemmer stemmer = new porterStemmer();
         for (Element E : Elements) {
-            int word_pos = 0; 
+            int word_pos = 0;
             tag_counter++;
             String[] tokens = new String[0];
             tokens = E.text().split("\\s+");
@@ -45,9 +44,9 @@ public class TextProcessor {
                 }
                 String word = token.toLowerCase().replaceAll("[^a-z]", "");
                 if (!stopWords.contains(word)) {
-                    word_pos++;
-                    if (word == "")
+                    if (word.equals(""))
                         continue;
+                    word_pos++;
                     String literal = word;
                     stemmer.setCurrent(word);
                     stemmer.stem();
