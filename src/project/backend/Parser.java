@@ -18,6 +18,8 @@ public class Parser {
     public void Extract_Tags_from_URL(String url) throws IOException {
         // parse the url into a document
         Document doc = Jsoup.connect(url).ignoreContentType(true).get();
+        String lang = doc.getElementsByTag("html").first().attr("lang");
+        if(!lang.contains("en") && lang!="") return;
         // get the title of the document
         title = doc.select("title");
         // get the keywords in meta
