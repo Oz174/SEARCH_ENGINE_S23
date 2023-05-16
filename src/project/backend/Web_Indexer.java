@@ -19,7 +19,7 @@ public class Web_Indexer implements Runnable {
         // get urls from the database
         ArrayList<String> urls = db.get_Not_Indexed();
         // Split the urls into chunks
-        int chunkSize = 60;
+        int chunkSize = 20;
         int thread_count = (int) Math.ceil((double) urls.size() / chunkSize);
         Thread[] threads = new Thread[thread_count];
         int thread_id = 0;
@@ -42,29 +42,30 @@ public class Web_Indexer implements Runnable {
          // ✨ سَرِّش ✨
         System.out.println("Done!");
         porterStemmer stemmer = new porterStemmer();
-        stemmer.setCurrent("india");
+        stemmer.setCurrent("galaxy");
         stemmer.stem();
         System.out.println(db.get_link_from_indexed_word(stemmer.getCurrent()));
         db.disconnect();
     }
 
     public void run() {
-        System.out.println("Thread " + Thread.currentThread().getName() + " Started!");
+        System.out.println(Thread.currentThread().getName() + " Started!");
         for (String url : urls_to_index) {
             try {
                 TextProcessor textProcessor = new TextProcessor();
                 Parser jsoup_parser = new Parser();
+                int doc_id = db.get_doc_id(url);
                 // parse the url into a document
                 jsoup_parser.Extract_Tags_from_URL(url);
 
                 if (jsoup_parser.title != null)
-                    textProcessor.ProcessElements(jsoup_parser.title, "title", db.get_doc_id(url));
+                    textProcessor.ProcessElements(jsoup_parser.title, "title", doc_id);
                 if (jsoup_parser.Headings != null)
-                    textProcessor.ProcessElements(jsoup_parser.Headings, "h1", db.get_doc_id(url));
+                    textProcessor.ProcessElements(jsoup_parser.Headings, "h1", doc_id);
                 if (jsoup_parser.Paragraphs != null)
-                    textProcessor.ProcessElements(jsoup_parser.Paragraphs, "p", db.get_doc_id(url));
+                    textProcessor.ProcessElements(jsoup_parser.Paragraphs, "p", doc_id);
                 if (jsoup_parser.keywords != null)
-                    textProcessor.ProcessKeywords(jsoup_parser.keywords, db.get_doc_id(url));
+                    textProcessor.ProcessKeywords(jsoup_parser.keywords, doc_id);
 
                 synchronized (db.class) {
                     db.add_to_ranker_dictionary(textProcessor.queries);
@@ -81,7 +82,7 @@ public class Web_Indexer implements Runnable {
                 db.remove_url(url);
             }
         }
-        System.out.println("Thread " + Thread.currentThread().getName() + " Done!");
+        System.out.println(Thread.currentThread().getName() + " Done!");
     }
 }
 
