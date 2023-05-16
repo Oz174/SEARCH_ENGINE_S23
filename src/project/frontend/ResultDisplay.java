@@ -1,33 +1,44 @@
 package project.frontend;
 // import queryprocess.RetrievedDocument;
+
 // import utilities.Constants;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import project.backend.db;
 
+import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+
 
 public class ResultDisplay {
     private static FileWriter fw = null;
-    private static String [] NUMBER_TO_INDEX = {
-        "first", "second", "third", "fourth", "fifth", "sixth", "seventh", "eighth", "nineth", "tenth"};
+    private static String[] NUMBER_TO_INDEX = {
+            "first", "second", "third", "fourth", "fifth", "sixth", "seventh", "eighth", "nineth", "tenth" };
 
-    public static void displayDocuments(List<Document> searchResults, double time) {
+    public static void displayDocuments(List<Document> searchResults , int currentPage) {
         try {
-            fw = new FileWriter("./src/project/frontend/display",false);
+            fw = new FileWriter("./src/project/frontend/display/index.html", false);
 
-            if (searchResults != null && searchResults.size() > 0)
-            {
+            if (searchResults != null && searchResults.size() > 0) {
                 int length = Math.min(searchResults.size(), 10);
-                displayHeader(searchResults.size(), time);
-                for(int i = 0; i < length; i++) {
-                    displayResult(i, searchResults.get(i));
+                displayHeader(searchResults.size());
+                if(length < 10){
+                    for (int i = 0; i < length; i++) {
+                        displayResult(i, searchResults.get(i));
+                    }
+                }
+                else{
+                    for (int i = (currentPage-1)*10; i < Math.min(((currentPage*10)-1),searchResults.size()); i++) {
+                        displayResult(i-(currentPage-1)*10, searchResults.get(i));
+                    }
                 }
                 displayFooter();
-            }
-            else {
-                displayHeader(-1, -1);
+            
+            } else {
+                displayHeader(-1);
                 displayFooter();
             }
 
@@ -38,7 +49,7 @@ public class ResultDisplay {
         }
     }
 
-    private static void displayHeader(int number, double time) throws IOException {
+    private static void displayHeader(int number) throws IOException {
         String str1 = """
                 <!DOCTYPE html>
                 <html lang="en">
@@ -99,34 +110,34 @@ public class ResultDisplay {
                         </header>
                         <div class="body">
                 """;
-        String str2 = "            <p>"+String.valueOf(number)+" results ("+String.valueOf(time)+" seconds)</p>   \n" +
+        String str2 = "            <p>" + String.valueOf(number) + " results </p>   \n" +
                 "            <div class=\"below_card\">\n" +
                 "            </div>\n" +
                 "            <div id=\"results\">\n";
-        fw.write(str1+str2);
+        fw.write(str1 + str2);
     }
+
     private static void displayResult(int index, Document result) throws IOException {
         String desc;
-        if(result.body().text().length() > 60) {
+        if (result.body().text().length() > 60) {
             desc = result.body().text().substring(0, 60);
-        }
-        else
-        {
+        } else {
             desc = result.body().text();
         }
 
-        String str1 = "<div class=\""+ NUMBER_TO_INDEX[index] +"_result\">\n" +
+        String str1 = "<div class=\"" + NUMBER_TO_INDEX[index] + "_result\">\n" +
                 "                    <div class=\"text_with_arrow_down\">\n" +
-                "                        <p>"+result.baseUri()+"\n" +
+                "                        <p>" + result.baseUri() + "\n" +
                 "                        </p>\n" +
                 "                        <i class=\"fas fa-angle-down\"></i>\n" +
                 "                    </div>\n" +
-                "                    <a href=\"#\">"+result.title()+"</a>\n" +
-                "                    <p>"+desc+"...</p>\n" +
+                "                    <a href=\"" + result.baseUri() + "\">" + result.title() + "</a>\n" +
+                "                    <p>" + desc + "...</p>\n" +
                 "                </div>\n" +
                 "\n";
         fw.write(str1);
     }
+
     private static void displayFooter() throws IOException {
         String str1 = """
                     \s
@@ -139,31 +150,28 @@ public class ResultDisplay {
                                     <img src="./images/google.png" alt="">
                                     <i class="fas fa-arrow-right"></i>
                                 </div>
-                                <div class="numbers">
-                                    <a href="/">1</a>
-                                    <a href="/">2</a>
-                                    <a href="/">3</a>
-                                    <a href="/">4</a>
-                                    <a href="/">5</a>
-                                    <a href="/">6</a>
-                                    <a href="/">7</a>
-                                    <a href="/">8</a>
-                                    <a href="/">9</a>
-                                    <a href="/">10</a>
-                                    <a href="/">Next</a>
-                                </div>
+                                <div id="pagination">
+                                <a href="#" onclick="previousPage()">Previous</a>
+                                <span id="currentPage">currentPage</span>
+                                <a href="#" onclick="nextPage()">Next</a>
+                              </div>
+                              <script>
+                              let currentPage = 1;
+                              var u = document.getElementById("pagination").querySelector("span").textContent = currentPage;
+                              function previousPage() {
+                                  if (currentPage > 1) {
+                                      currentPage--;
+                                  }
+                              }
+                              function nextPage() {
+                                  if (currentPage < 10) {
+                                      currentPage++;
+                                  }
+                              }
+                          </script>
                             </div>
                         </div>
                         <footer>
-                            <div class="top_footer">
-                                <p>Test <span>Test</span> - From your Internet address - Use precise location - Learn more</p>
-                            </div>
-                            <div class="bottom_footer">
-                                <a href="/">Help</a>
-                                <a href="/">Send feedback</a>
-                                <a href="/">Privacy</a>
-                                <a href="/">Terms</a>
-                            </div>
                         </footer>
                     </div>
                 </body>
@@ -171,4 +179,18 @@ public class ResultDisplay {
                 """;
         fw.write(str1);
     }
+
+    public static void main(String[] args) throws IOException{
+        db.connect();
+        ArrayList<String> links = db.get_Not_Indexed();
+        ArrayList<Document> docs = new ArrayList<Document>();
+        for(String link : links){
+            Document doc = Jsoup.connect(link).get();
+            docs.add(doc);
+        }
+        db.disconnect();
+        // display docs
+
+        displayDocuments(docs,2);
+}
 }
