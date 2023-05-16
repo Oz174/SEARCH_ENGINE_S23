@@ -37,7 +37,7 @@ public class TextProcessor {
         }
         String word = token.toLowerCase().replaceAll("[^a-z]", "");
         if (!stopWords.contains(word)) {
-            if (word.equals("") || word.length() > 15 ||  word.contains("www") || word.length() < 3 )
+            if (word.equals("") || word.length() > 18 ||  word.contains("www") || word.length() < 3 )
                 return;
             String literal = word;
             stemmer.setCurrent(word);
