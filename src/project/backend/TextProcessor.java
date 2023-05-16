@@ -37,7 +37,7 @@ public class TextProcessor {
         }
         String word = token.toLowerCase().replaceAll("[^a-z]", "");
         if (!stopWords.contains(word)) {
-            if (word.equals(""))
+            if (word.equals("") || word.length() > 15 ||  word.contains("www") || word.length() < 3 )
                 return;
             String literal = word;
             stemmer.setCurrent(word);
@@ -65,15 +65,17 @@ public class TextProcessor {
     public void ProcessKeywords(Elements keywords, int doc_id){
         if (keywords.isEmpty())
             return;
+        // .first() will return the first <meta > tag with attribute keywords ... 
+        // so the tag_counter will always be 1 , since the size of elements will be 1
+        // so do you want to change it to accomodate multiple meta keywords tags , or just assume it's mostly one 
+        // meta attribute keywords everywhere ??
         String[] keywords_list = keywords.first().attr("content").split(",\\s*");
-        int tag_counter = 0;
+        int word_pos = 0;
         for (String keyword_phrase : keywords_list){
-            tag_counter++;
-            int word_pos = 0;
             String[] tokens = keyword_phrase.split("\\s+");
             for (String token : tokens){
                 word_pos++;
-                processToken(token, doc_id, "keyword", tag_counter, word_pos);
+                processToken(token, doc_id, "keyword", 1, word_pos);
             }
         }
     }
