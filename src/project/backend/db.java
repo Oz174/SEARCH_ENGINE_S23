@@ -120,7 +120,7 @@ public class db {
         ArrayList<String> Not_Indexed = new ArrayList<String>();
         try {
             // con = DriverManager.getConnection(pswd, user, Connection_String);
-            String query = "SELECT * from Docs WHERE indexed = 0;";
+            String query = "SELECT * from Docs WHERE indexed = 0 and crawled = 1;";
             Statement Stmt = con.createStatement();
             ResultSet rs = Stmt.executeQuery(query);
             while (rs.next()) {

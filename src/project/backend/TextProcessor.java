@@ -37,7 +37,7 @@ public class TextProcessor {
         }
         String word = token.toLowerCase().replaceAll("[^a-z]", "");
         if (!stopWords.contains(word)) {
-            if (word.equals("") || word.length() > 18 ||  word.contains("www") || word.length() < 3 )
+            if (word.equals("") ||  word.contains("www") )
                 return;
             String literal = word;
             stemmer.setCurrent(word);
@@ -70,14 +70,17 @@ public class TextProcessor {
         // so do you want to change it to accomodate multiple meta keywords tags , or just assume it's mostly one 
         // meta attribute keywords everywhere ??
         String[] keywords_list = keywords.first().attr("content").split(",\\s*");
-        int word_pos = 0;
+        int keyword_number = 0;
         for (String keyword_phrase : keywords_list){
+            int word_pos = 0;
+            keyword_number++;
             String[] tokens = keyword_phrase.split("\\s+");
             for (String token : tokens){
                 word_pos++;
-                processToken(token, doc_id, "keyword", 1, word_pos);
+                processToken(token, doc_id, "keyword", keyword_number, word_pos);
             }
         }
     }
 
 }
+

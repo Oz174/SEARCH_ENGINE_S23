@@ -8,9 +8,9 @@ import java.util.concurrent.*;
 
 import java.io.IOException;
 import java.net.URL;
-import java.net.URLConnection;
 
 import org.jsoup.Jsoup;
+import org.jsoup.Connection.Response;
 import org.jsoup.nodes.*;
 import org.jsoup.select.*;
 
@@ -103,11 +103,20 @@ public class WebCrawler {
 			// 4 - Get html document
 			Document doc = null;
 			try {
-				doc = Jsoup.connect(url).get();
+				Response res = Jsoup.connect(url).execute();
+				// get the content type of the doc 
+				String contentType = res.contentType();
+				if (contentType == null || !contentType.contains("text/html"))
+					throw new IOException();
+				doc = res.parse();
+				String lang = doc.getElementsByTag("html").first().attr("lang");
+				if (!lang.contains("en") && lang != "")
+					throw new IOException();
 			} catch (IOException e) {
 				db.remove_url(url);
 				continue;
 			}
+
 			isVisited.put(url, true);
 
 			// 5 - Get all links in this page, shuffle for randomization
@@ -118,7 +127,7 @@ public class WebCrawler {
 			Collections.shuffle(elements);
 			for (Element e : elements) {
 				// 6 - check if we reached max number of pages
-				if (toVisit.size() + isVisited.size() > MAX_TO_BE_CRAWLED)
+				if (isVisited.size() > MAX_TO_BE_CRAWLED)
 					return;
 				// 7 - check if we reached max number of pages per site
 				if (counter > MAX_PER_PAGE)
@@ -128,16 +137,7 @@ public class WebCrawler {
 				if (href == null)
 					continue;
 				// 9 - check if link is html
-				try {
-					URL test = new URL(href);
-					URLConnection connection = test.openConnection();
-					String contentType = connection.getContentType();
-					if (contentType == null || ! contentType.contains("text/html"))
-						continue;
-				} catch (IOException exp) {
-					continue;
-				}
-				if (!this.toVisit.contains(href) && !this.isVisited.containsKey(href) && db.get_doc_id(href) == -1){
+				if (!this.toVisit.contains(href) && !this.isVisited.containsKey(href) && db.get_doc_id(href) == -1) {
 					db.add_url(href);
 					toVisit.offer(href);
 					counter++;

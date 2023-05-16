@@ -3,6 +3,7 @@ package project.backend;
 import java.io.IOException;
 import java.util.ArrayList;
 
+
 import project.backend.org.tartarus.snowball.ext.porterStemmer;
 
 public class Web_Indexer implements Runnable {
@@ -15,6 +16,7 @@ public class Web_Indexer implements Runnable {
     }
 
     public static void main(String args[]) throws IOException {
+
         db.connect();
         // get urls from the database
         ArrayList<String> urls = db.get_Not_Indexed();
@@ -39,7 +41,7 @@ public class Web_Indexer implements Runnable {
                 e.printStackTrace();
             }
         }
-         // ✨ سَرِّش ✨
+        // ✨ سَرِّش ✨
         System.out.println("Done!");
         porterStemmer stemmer = new porterStemmer();
         stemmer.setCurrent("galaxy");
@@ -72,7 +74,7 @@ public class Web_Indexer implements Runnable {
                     db.set_Indexed(url);
                 }
             } catch (IOException e) {
-                synchronized (System.out){
+                synchronized (System.out) {
                     System.out.println("******************************************************************");
                     System.out.println("Error in parsing " + url);
                     System.out.println("\n");
