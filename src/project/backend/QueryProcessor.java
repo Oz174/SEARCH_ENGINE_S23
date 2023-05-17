@@ -1,5 +1,7 @@
 package project.backend;
+import project.frontend.ResultDisplay;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class QueryProcessor {
@@ -46,11 +48,14 @@ public class QueryProcessor {
 		return WebRanker.formulate_search_query(words, literal_words);
 	}
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 		String query = "\"samsung galaxy\"";
-		System.out.println(search_string_to_sql_query(query));
-		System.out.println("\n--------------------------------------------------\n");
+		//System.out.println(search_string_to_sql_query(query));
+		//System.out.println("\n--------------------------------------------------\n");
 		query = "cnn";
 		System.out.println(search_string_to_sql_query(query));
+		db.connect();
+		ResultDisplay.getdocs(query);
+		db.disconnect();
 	}
 }

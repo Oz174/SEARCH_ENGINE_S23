@@ -1,10 +1,9 @@
 package project.frontend;
-
+import project.backend.QueryProcessor;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
 import project.backend.db;
 
 import org.jsoup.Jsoup;
@@ -36,14 +35,14 @@ public class ResultDisplay extends HttpServlet {
             File file = new File(file_names[i]);
             file.delete();
             try {
-                displayHeader(0, file_names[i]);
+                displayHeader(0,0, file_names[i]);
                 displayFooter(file_names[i]);
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
     }
-    private static void displayHeader(int number , String filename) throws IOException {
+    private static void displayHeader(int number , int time , String filename) throws IOException {
         fw = new FileWriter(filename, true);
         String str0 = """
             <!DOCTYPE html>
@@ -98,10 +97,10 @@ public class ResultDisplay extends HttpServlet {
                     <div class=\"body\">
                 """;
 
-        String str1 = " <p>" + String.valueOf(number) + " results </p>   \n" +
-                "            <div class=\"below_card\">\n" +
-                "            </div>\n" +
-                "            <div id=\"results\">\n";
+    String str1 = "            <p>"+String.valueOf(number)+" results ("+String.valueOf(time)+" seconds)</p>   \n" +
+    "            <div class=\"below_card\">\n" +
+    "            </div>\n" +
+    "            <div id=\"results\">\n";
         fw.write(str0 + str1);
         fw.close();
         return;
@@ -156,14 +155,14 @@ public class ResultDisplay extends HttpServlet {
                 return;
     }
     
-    public static void displayAll(ArrayList<Document> searchResults) throws IOException{
+    public static void displayAll(ArrayList<Document> searchResults, int time) throws IOException{
         ClearHTML(); // clear all generated htmls from before 
         int currentpage = 1;
         for(int i=0 ; i< searchResults.size(); i++){
             if(i%10==0){
             File file = new File(file_names[currentpage]);
             if(file.exists()){file.delete();}
-            displayHeader(searchResults.size(), file_names[currentpage]);
+            displayHeader(searchResults.size(), time, file_names[currentpage]);
             }
             displayResult(i%10, searchResults.get(i), file_names[currentpage]);
             if(i%10==9 || i==searchResults.size()-1){
@@ -172,8 +171,19 @@ public class ResultDisplay extends HttpServlet {
             }
         }
     }
+    
+    
+    public static void getdocs(String SQ) throws IOException{
+        ArrayList<Document> docs = new ArrayList<Document>();
+        int startTime = (int)System.currentTimeMillis()/1000;
+        ArrayList<String> l= db.process_query_and_get_top_50(QueryProcessor.search_string_to_sql_query(SQ));
+        for(String link : l){
+            Document d = Jsoup.connect(link).get();
+            docs.add(d);
+        }
+        int endTime = (int)System.currentTimeMillis()/1000;
+        displayAll(docs,endTime-startTime);
+        return;
 
-    // public static void main(String[] args) throws IOException{
-        
-    // }
+    }
 }
