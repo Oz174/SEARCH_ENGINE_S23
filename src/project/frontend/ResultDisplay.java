@@ -1,5 +1,5 @@
 package project.frontend;
-
+import project.backend.QueryProcessor;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -19,7 +19,7 @@ import javax.servlet.http.*;
 @WebServlet("/ResultDisplay")
 public class ResultDisplay extends HttpServlet {
     private static FileWriter fw = null;
-    private static String[] file_names = {"E:\\apache-tomcat-9.0.74-windows-x64\\apache-tomcat-9.0.74\\webapps\\ROOT\\index1.html","E:\\apache-tomcat-9.0.74-windows-x64\\apache-tomcat-9.0.74\\webapps\\ROOT\\index2.html","E:\\apache-tomcat-9.0.74-windows-x64\\apache-tomcat-9.0.74\\webapps\\ROOT\\index3.html","E:\\apache-tomcat-9.0.74-windows-x64\\apache-tomcat-9.0.74\\webapps\\ROOT\\index4.html","E:\\apache-tomcat-9.0.74-windows-x64\\apache-tomcat-9.0.74\\webapps\\ROOT\\index5.html","E:\\apache-tomcat-9.0.74-windows-x64\\apache-tomcat-9.0.74\\webapps\\ROOT\\index6.html"};
+    private static String[] file_names = {"E:\\apache-tomcat-9.0.74-windows-x64\\apache-tomcat-9.0.74\\webapps\\ROOT\\land.html","E:\\apache-tomcat-9.0.74-windows-x64\\apache-tomcat-9.0.74\\webapps\\ROOT\\index1.html","E:\\apache-tomcat-9.0.74-windows-x64\\apache-tomcat-9.0.74\\webapps\\ROOT\\index2.html","E:\\apache-tomcat-9.0.74-windows-x64\\apache-tomcat-9.0.74\\webapps\\ROOT\\index3.html","E:\\apache-tomcat-9.0.74-windows-x64\\apache-tomcat-9.0.74\\webapps\\ROOT\\index4.html","E:\\apache-tomcat-9.0.74-windows-x64\\apache-tomcat-9.0.74\\webapps\\ROOT\\index5.html","E:\\apache-tomcat-9.0.74-windows-x64\\apache-tomcat-9.0.74\\webapps\\ROOT\\index6.html"};
     private static String[] NUMBER_TO_INDEX = {
             "first", "second", "third", "fourth", "fifth", "sixth", "seventh", "eighth", "nineth", "tenth" };
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException , ServletException {
@@ -32,7 +32,7 @@ public class ResultDisplay extends HttpServlet {
         response.getWriter().write(query);
     }
     private static void ClearHTML(){
-        for(int i=0 ; i<6 ; i++){
+        for(int i=1 ; i<6 ; i++){
             File file = new File(file_names[i]);
             file.delete();
             try {
@@ -171,7 +171,7 @@ public class ResultDisplay extends HttpServlet {
         }
         db.disconnect();
         // landing page 
-        int currentpage = 0;
+        int currentpage = 1;
         for(int i=0 ; i< searchResults.size(); i++){
             if(i%10==0){
             File file = new File(file_names[currentpage]);
