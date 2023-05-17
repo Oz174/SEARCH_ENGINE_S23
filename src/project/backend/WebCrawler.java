@@ -17,7 +17,7 @@ import org.jsoup.select.*;
 public class WebCrawler {
 
 	public static db database;
-	private static final int MAX_TO_BE_CRAWLED = 300;
+	private static final int MAX_TO_BE_CRAWLED = 6000;
 	private static final int MAX_PER_PAGE = 10;
 
 	private ConcurrentHashMap<String, Boolean> isVisited;
