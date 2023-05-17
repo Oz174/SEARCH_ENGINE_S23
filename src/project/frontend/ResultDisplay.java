@@ -3,6 +3,7 @@ import project.backend.QueryProcessor;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import project.backend.db;
 
@@ -179,8 +180,13 @@ public class ResultDisplay extends HttpServlet {
         ArrayList<String> l= db.process_query_and_get_top_50(QueryProcessor.search_string_to_sql_query(SQ));
         int endTime = (int)System.currentTimeMillis();
         for(String link : l){
-            Document d = Jsoup.connect(link).timeout(10000).get();
-            docs.add(d);
+            try {
+                Document d = Jsoup.connect(link).timeout(10000).get();
+                docs.add(d);
+                
+            } catch (SocketTimeoutException e) {
+                continue;
+            }
         }
         displayAll(docs,endTime-startTime);
         return;
