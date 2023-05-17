@@ -1,6 +1,5 @@
 package project.frontend;
 import project.backend.QueryProcessor;
-
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -25,11 +24,12 @@ public class ResultDisplay extends HttpServlet {
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException , ServletException {
         String query = request.getQueryString();
         String search = request.getParameter("search");
-        if(search != ""){
-            response.setContentType("text/html");
-            response.getWriter().write(search);
+        if(search != null || query != null){
+            // print their response in a new html page using getWriter
+            response.setContentType("html/text");
+            response.getWriter().println("<!doctype html> <html> <body> <h1>" + search +" </h1> </body></html>");
+            response.getWriter().println("<h1> Hello " + query + "</h1>");
         }
-        response.getWriter().write(query);
     }
     private static void ClearHTML(){
         for(int i=1 ; i<6 ; i++){
@@ -61,13 +61,12 @@ public class ResultDisplay extends HttpServlet {
                         <div class=\"top_header\">
                             <div id=\"logo\"><img src=\"google.png\" alt=\"logo\">
                             </div>
+                            <form action=\"index1.html\" method=\"get\" id=\"search\">
                             <div id=\"search_bar\">
-                                <input type=\"text\" id=\"search\" name=\"search\" required />
-                                <i class=\"fas fa-times\"></i>
-                                <span>|</span>
-                                <i class=\"fas fa-microphone\"></i>
-                                <i class=\"fas fa-search\"></i>
+                                <input type=\"text\" placeholder=\"  Search...\" name=\"search\">
+                                <button type=\"submit\"><i class=\"fa fa-search\"></i></button>
                             </div>
+                        </form>
                         </div>
                         <div class=\"bottom_header\">
                             <div id=\"all\">
