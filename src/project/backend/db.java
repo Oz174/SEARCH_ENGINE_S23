@@ -197,6 +197,21 @@ public class db {
         return links;
     }
 
+    public static ArrayList<String> process_query_and_get_top_50(String query){
+        ArrayList<String> links = new ArrayList<String>();
+        try {
+            Statement Stmt = con.createStatement();
+            ResultSet rs = Stmt.executeQuery(query);
+            while (rs.next()) {
+                links.add(rs.getString("link"));
+            }
+            return links;
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+        return links;
+    }
+
     // public static boolean update_ranker_dictionary(){}
     public static void main(String args[]) {
     }
