@@ -1,8 +1,7 @@
 package project.frontend;
-// import queryprocess.RetrievedDocument;
 
-// import utilities.Constants;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -12,112 +11,90 @@ import project.backend.db;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.*;
 
-public class ResultDisplay {
+@WebServlet("/ResultDisplay")
+public class ResultDisplay extends HttpServlet {
     private static FileWriter fw = null;
     private static String[] NUMBER_TO_INDEX = {
             "first", "second", "third", "fourth", "fifth", "sixth", "seventh", "eighth", "nineth", "tenth" };
-
-    public static void displayDocuments(List<Document> searchResults , int currentPage) {
-        try {
-            fw = new FileWriter("./src/project/frontend/display/index.html", false);
-
-            if (searchResults != null && searchResults.size() > 0) {
-                int length = Math.min(searchResults.size(), 10);
-                displayHeader(searchResults.size());
-                if(length < 10){
-                    for (int i = 0; i < length; i++) {
-                        displayResult(i, searchResults.get(i));
-                    }
-                }
-                else{
-                    for (int i = (currentPage-1)*10; i < Math.min(((currentPage*10)-1),searchResults.size()); i++) {
-                        displayResult(i-(currentPage-1)*10, searchResults.get(i));
-                    }
-                }
-                displayFooter();
-            
-            } else {
-                displayHeader(-1);
-                displayFooter();
-            }
-
-            fw.close();
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException , ServletException {
+       int currentpage =1;
+        String query = request.getQueryString();
+        response.setContentType("text/html");
+        response.getWriter().write(query);
+        if (query =="next") {currentpage++;}
+        else{currentpage--;}
     }
 
     private static void displayHeader(int number) throws IOException {
-        String str1 = """
-                <!DOCTYPE html>
-                <html lang="en">
-                <head>
-                    <meta charset="UTF-8">
-                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                    <script src="https://use.fontawesome.com/releases/v5.0.8/js/all.js"></script>
-                    <link rel="stylesheet" href="style.css">
-                    <title>Google Search Page</title>
-                </head>
-                <body>
-                    <div class="main">
-                        <header>
-                            <div class="top_header">
-                                <div id="logo"><img src="google.png" alt="logo">
-                                </div>
-                                <div id="search_bar">
-                                    <input type="text" id="search" name="search" required />
-                                    <i class="fas fa-times"></i>
-                                    <span>|</span>
-                                    <i class="fas fa-microphone"></i>
-                                    <i class="fas fa-search"></i>
-                                </div>
-                                <div id="right_icons">
-                                    <i class="fas fa-th"></i>
-                                    <a href="#">Sign in</a>
-                                </div>
+        fw = new FileWriter("E:\\apache-tomcat-9.0.74-windows-x64\\apache-tomcat-9.0.74\\webapps\\ROOT\\index.html", true);
+        String str0 = """
+            <!DOCTYPE html>
+            <html lang="en">
+            <head>
+                <meta charset="UTF-8">
+                <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">
+                <script src=\"https://use.fontawesome.com/releases/v5.0.8/js/all.js\"></script>
+                <link rel=\"stylesheet\" href=\"style.css\">
+                <title>Google Search Page</title>
+            </head>
+            <body>
+                <div class=\"main\">
+                    <header>
+                        <div class=\"top_header\">
+                            <div id=\"logo\"><img src=\"google.png\" alt=\"logo\">
                             </div>
-                            <div class="bottom_header">
-                                <div id="all">
-                                    <i class="fas fa-search"></i>
-                                    <p>All</p>
-                                </div>
-                                <div id="news">
-                                    <i class="far fa-newspaper"></i>
-                                    <p>News</p>
-                                </div>
-                                <div id="videos">
-                                    <i class="far fa-stop-circle"></i>
-                                    <p>Videos</p>
-                                </div>
-                                <div id="maps">
-                                    <i class="fas fa-map-marker-alt"></i>
-                                    <p>Maps</p>
-                                </div>
-                                <div id="images">
-                                    <i class="fas fa-image"></i>
-                                    <p>Images</p>
-                                </div>
-                                <div id="more">
-                                    <i class="fas fa-ellipsis-v"></i>
-                                    <p>More</p>
-                                </div>
-                                <a href="#" class="settings">Settings</a>
-                                <a href="#" class="middle">Tools</a>
-                                <a href="#" id="safesearch">SafeSearch on</a>
+                            <div id=\"search_bar\">
+                                <input type=\"text\" id=\"search\" name=\"search\" required />
+                                <i class=\"fas fa-times\"></i>
+                                <span>|</span>
+                                <i class=\"fas fa-microphone\"></i>
+                                <i class=\"fas fa-search\"></i>
                             </div>
-                        </header>
-                        <div class="body">
+                        </div>
+                        <div class=\"bottom_header\">
+                            <div id=\"all\">
+                                <i class=\"fas fa-search\"></i>
+                                <p>All</p>
+                            </div>
+                            <div id=\"news\">
+                                <i class=\"far fa-newspaper\"></i>
+                                <p>News</p>
+                            </div>
+                            <div id=\"videos\">
+                                <i class=\"far fa-stop-circle\"></i>
+                                <p>Videos</p>
+                            </div>
+                            <div id=\"maps\">
+                                <i class=\"fas fa-map-marker-alt\"></i>
+                                <p>Maps</p>
+                            </div>
+                            <div id=\"images\">
+                                <i class=\"fas fa-image\"></i>
+                                <p>Images</p>
+                            </div>
+                            <div id=\"more\">
+                                <i class=\"fas fa-ellipsis-v\"></i>
+                                <p>More</p>
+                            </div>
+                        </div>
+                    </header>
+                    <div class=\"body\">
                 """;
-        String str2 = "            <p>" + String.valueOf(number) + " results </p>   \n" +
+        String str1 = " <p>" + String.valueOf(number) + " results </p>   \n" +
                 "            <div class=\"below_card\">\n" +
                 "            </div>\n" +
                 "            <div id=\"results\">\n";
-        fw.write(str1 + str2);
+        fw.write(str0 + str1);
+        fw.close();
+        return;
     }
 
     private static void displayResult(int index, Document result) throws IOException {
+        fw = new FileWriter("E:\\apache-tomcat-9.0.74-windows-x64\\apache-tomcat-9.0.74\\webapps\\ROOT\\index.html", true);
         String desc;
         if (result.body().text().length() > 60) {
             desc = result.body().text().substring(0, 60);
@@ -126,71 +103,97 @@ public class ResultDisplay {
         }
 
         String str1 = "<div class=\"" + NUMBER_TO_INDEX[index] + "_result\">\n" +
-                "                    <div class=\"text_with_arrow_down\">\n" +
-                "                        <p>" + result.baseUri() + "\n" +
-                "                        </p>\n" +
-                "                        <i class=\"fas fa-angle-down\"></i>\n" +
-                "                    </div>\n" +
-                "                    <a href=\"" + result.baseUri() + "\">" + result.title() + "</a>\n" +
-                "                    <p>" + desc + "...</p>\n" +
-                "                </div>\n" +
+                "        <div class=\"text_with_arrow_down\">\n" +
+                "        <p>" + result.baseUri().trim() + "\n" +
+                "        </p>\n" +
+                "        <i class=\"fas fa-angle-down\"></i>\n" +
+                "        </div>\n" +
+                "        <a href=\"" + result.baseUri() + "\">" + result.title() + "</a>\n" +
+                "        <p>" + desc + "...</p>\n" +
+                "        </div>\n" +
                 "\n";
         fw.write(str1);
+        fw.close();
+        return;
     }
 
-    private static void displayFooter() throws IOException {
-        String str1 = """
-                    \s
-                            </div>
-
-                            <div class="last_part">
-                            </div>
-                            <div class="second_logo">
-                                <div class="logo_arrow">
-                                    <img src="./images/google.png" alt="">
-                                    <i class="fas fa-arrow-right"></i>
+    private static void displayFooter(int currentPage) throws IOException {
+        fw = new FileWriter("E:\\apache-tomcat-9.0.74-windows-x64\\apache-tomcat-9.0.74\\webapps\\ROOT\\index.html", true);
+        String str1 ="";
+        if(currentPage ==1){
+            str1 = """
+                \s
+                        </div>
+                        <div class=\"last_part\">
+                        </div>
+                        <div class=\"second_logo\">
+                            <div id= \"pagination\">
+                            <span id= \"currentPage\"></span>
+                            <a href=\"ResultDisplay?next\"> Next </a>
+                          </div>
+                        </div>
+                    </div>
+                </div>
+                </div>
+            </body>
+            </html>
+            """;
+        }
+        else {
+            str1 = """
+                        \s
                                 </div>
-                                <div id="pagination">
-                                <a href="#" onclick="previousPage()">Previous</a>
-                                <span id="currentPage">currentPage</span>
-                                <a href="#" onclick="nextPage()">Next</a>
-                              </div>
-                              <script>
-                              let currentPage = 1;
-                              var u = document.getElementById("pagination").querySelector("span").textContent = currentPage;
-                              function previousPage() {
-                                  if (currentPage > 1) {
-                                      currentPage--;
-                                  }
-                              }
-                              function nextPage() {
-                                  if (currentPage < 10) {
-                                      currentPage++;
-                                  }
-                              }
-                          </script>
+                                <div class= \"last_part\">
+                                </div>
+                                <div class=\"second_logo\">
+                                    <div class=\"logo_arrow\">
+                                        <img src=\"./images/google.png\" alt=\"\">
+                                        <i class= \"fas fa-arrow-right\"></i>
+                                    </div>
+                                    <div id=\"pagination\">
+                                    <a href= \"ResultDisplay?prev\"> Previous</a>"
+                                    "<span id=\"currentPage\"> </span>"
+                                    "<a href=\"ResultDisplay?next\" > Next </a>"
+                                  "</div>
+                                </div>
+                            </div>
                             </div>
                         </div>
-                        <footer>
-                        </footer>
-                    </div>
-                </body>
-                </html>
-                """;
-        fw.write(str1);
+                    </body>
+                    </html>
+                    """;
+                }
+                fw.write(str1);
+                fw.close();
+                return;
     }
-
     public static void main(String[] args) throws IOException{
+        File file = new File("E:\\apache-tomcat-9.0.74-windows-x64\\apache-tomcat-9.0.74\\webapps\\ROOT\\index.html");
+        if(file.exists()){file.delete();}
         db.connect();
         ArrayList<String> links = db.get_Not_Indexed();
-        ArrayList<Document> docs = new ArrayList<Document>();
-        for(String link : links){
-            Document doc = Jsoup.connect(link).get();
-            docs.add(doc);
+        List<Document> searchResults = new ArrayList<Document>();
+        for (String link : links) {
+            try {
+                Document doc = Jsoup.connect(link).get();
+                searchResults.add(doc);
+            } catch (Exception e) {
+                System.out.println("Error in fetching the document");
+            }
         }
         db.disconnect();
-        // display docs
+        int currentpage = 1;
 
-        displayDocuments(docs,2);
-}
+        ResultDisplay.displayHeader(searchResults.size()); 
+        if(searchResults.size() < 10){
+        for(int i=0 ; i<10; i++){
+            ResultDisplay.displayResult(i, searchResults.get(i));
+        }
+        }else{
+            for(int i=(currentpage-1)*10; i < Math.min(searchResults.size(),(currentpage*10)); i++){
+                ResultDisplay.displayResult(i-((currentpage-1)*10), searchResults.get(i));
+            }
+        }
+        ResultDisplay.displayFooter(currentpage);
+    }
 }
