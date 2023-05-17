@@ -155,21 +155,9 @@ public class ResultDisplay extends HttpServlet {
                 fw.close();
                 return;
     }
-    public static void main(String[] args) throws IOException{
-        ClearHTML();
-        db.connect();
-        ArrayList<String> links = db.get_link_from_indexed_word("javascript");
-        List<Document> searchResults = new ArrayList<Document>();
-        for (String link : links) {
-            try {
-                Document doc = Jsoup.connect(link).get();
-                searchResults.add(doc);
-            } catch (Exception e) {
-                System.out.println("Error in fetching the document");
-            }
-        }
-        db.disconnect();
-        // landing page 
+    
+    public static void displayAll(ArrayList<Document> searchResults) throws IOException{
+        ClearHTML(); // clear all generated htmls from before 
         int currentpage = 1;
         for(int i=0 ; i< searchResults.size(); i++){
             if(i%10==0){
@@ -184,7 +172,8 @@ public class ResultDisplay extends HttpServlet {
             }
         }
     }
-}
 
-// 32 
-// [2] --> third
+    // public static void main(String[] args) throws IOException{
+        
+    // }
+}
