@@ -1,5 +1,5 @@
 package project.frontend;
-import project.backend.QueryProcessor;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -32,7 +32,7 @@ public class ResultDisplay extends HttpServlet {
         }
     }
     private static void ClearHTML(){
-        for(int i=1 ; i<6 ; i++){
+        for(int i=1 ; i<7 ; i++){
             File file = new File(file_names[i]);
             file.delete();
             try {
@@ -158,7 +158,7 @@ public class ResultDisplay extends HttpServlet {
     public static void main(String[] args) throws IOException{
         ClearHTML();
         db.connect();
-        ArrayList<String> links = db.get_Not_Indexed();
+        ArrayList<String> links = db.get_link_from_indexed_word("javascript");
         List<Document> searchResults = new ArrayList<Document>();
         for (String link : links) {
             try {
