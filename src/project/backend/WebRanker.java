@@ -27,7 +27,7 @@ public class WebRanker {
 		query += String.join(" +", cases);
 		query += ") *";
 		query += tag_weights;
-		query += ") + visit_count AS score";
+		query += ") + visit_count / 20 AS score";
 		query += " FROM Ranker_Dictionary R1";
 		for (int i = 2; i <= words.size(); i++) {
 			String t1 = "R" + Integer.toString(i - 1);
@@ -62,7 +62,7 @@ public class WebRanker {
 		query += " END";
 		query += ") *";
 		query += tag_weights;
-		query += ") + visit_count AS score";
+		query += ") + visit_count / 20 AS score";
 		query += " FROM Ranker_Dictionary R1";
 		query += " JOIN Docs";
 		query += " ON Docs.doc_id = R1.doc_id";
