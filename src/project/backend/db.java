@@ -37,7 +37,7 @@ public class db {
     public static boolean add_url(String url) {
         // add url to the database
         try {
-            String query = "INSERT INTO Docs VALUES (\'" + url + "\'," + "0,0);";
+            String query = "INSERT INTO Docs VALUES (\'" + url + "\'," + "0,0,1);";
             Statement Stmt = con.createStatement();
             Stmt.execute(query);
             return true;
@@ -154,6 +154,9 @@ public class db {
             Statement Stmt = con.createStatement();
             ResultSet rs = Stmt.executeQuery(query);
             if (rs.next()) {
+                String query2 = "UPDATE Docs SET visit_count += 1 WHERE doc_id = " + Integer.toString(rs.getInt("doc_id")) + ";";
+                Statement Stmt2 = con.createStatement();
+                Stmt2.execute(query2);
                 return rs.getInt("doc_id");
             }
         } catch (Exception e) {

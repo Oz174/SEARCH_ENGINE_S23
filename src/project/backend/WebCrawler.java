@@ -137,7 +137,7 @@ public class WebCrawler {
 				if (href == null)
 					continue;
 				// 9 - check if link is html
-				if (!this.toVisit.contains(href) && !this.isVisited.containsKey(href) && db.get_doc_id(href) == -1) {
+				if (db.get_doc_id(href) == -1 && !this.toVisit.contains(href) && !this.isVisited.containsKey(href)) {
 					db.add_url(href);
 					toVisit.offer(href);
 					counter++;

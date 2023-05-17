@@ -1,6 +1,7 @@
 /*** Useful maintenance queries ***/
--- select crawled, count(*) from Docs group by crawled;
--- select indexed, count(*) from Docs group by indexed;
+-- SELECT crawled, count(*) FROM Docs GROUP BY crawled;
+-- SELECT indexed, count(*) FROM Docs GROUP BY indexed;
+-- SELECT visit_count, count(*) FROM Docs GROUP BY visit_count ORDER BY visit_count DESC;
 
 
 /*** Searching multiple words ***/

@@ -24,8 +24,6 @@ public class QueryProcessor {
 				add(words);
 				add(literal_words);
 			}};
-			// ArrayList<ArrayList<String>> result = new ArrayList<ArrayList<String>>();
-			// result.add(words);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
@@ -49,9 +47,9 @@ public class QueryProcessor {
 	}
 
 	public static void main(String[] args) {
-		String query = "samsung galaxy";
+		String query = "\"samsung galaxy\"";
 		System.out.println(search_string_to_sql_query(query));
-		System.out.println();
+		System.out.println("\n--------------------------------------------------\n");
 		query = "cnn";
 		System.out.println(search_string_to_sql_query(query));
 	}

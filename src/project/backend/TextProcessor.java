@@ -36,9 +36,11 @@ public class TextProcessor {
             return "";
         } catch (NumberFormatException e) {
         }
+        if (word.contains("www.") || word.contains("http://") || word.contains("https://"))
+            return "";
         word = word.toLowerCase().replaceAll("[^a-z]", "");
         if (!stopWords.contains(word)) {
-            if (word.equals("") ||  word.contains("www") )
+            if (word.equals(""))
                 return "";
             stemmer.setCurrent(word);
             stemmer.stem();
