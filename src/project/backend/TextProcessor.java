@@ -28,24 +28,34 @@ public class TextProcessor {
         stopwords.close();
     }
 
-
-    private void processToken(String token, int doc_id, String Tag, int tag_counter, int word_pos) {
+    public String stem_word(String word) {
+        if (word == null || word.length() == 0)
+            return "";
         try {
-            Integer.parseInt(token);
-            return;
+            Integer.parseInt(word);
+            return "";
         } catch (NumberFormatException e) {
         }
-        String word = token.toLowerCase().replaceAll("[^a-z]", "");
+        if (word.contains("www.") || word.contains("http://") || word.contains("https://"))
+            return "";
+        word = word.toLowerCase().replaceAll("[^a-z]", "");
         if (!stopWords.contains(word)) {
-            if (word.equals("") ||  word.contains("www") )
-                return;
-            String literal = word;
+            if (word.equals(""))
+                return "";
             stemmer.setCurrent(word);
             stemmer.stem();
             word = stemmer.getCurrent();
-            queries.add("(" + doc_id + ",\'" + literal + "\',\'" + word + "\',\'" + Tag + "\',"
-                    + tag_counter + "," + word_pos + ")");
+            return word;
         }
+        return "";
+    }
+
+    private void processToken(String token, int doc_id, String Tag, int tag_counter, int word_pos) {
+        String stemmed_word = stem_word(token);
+        if (stemmed_word.equals(""))
+            return;
+        String literal = token.toLowerCase().replaceAll("[^a-z]", "");
+        queries.add("(" + doc_id + ",\'" + literal + "\',\'" + stemmed_word + "\',\'" + Tag + "\'," + tag_counter + "," + word_pos + ")");
     }
 
     public void ProcessElements(Elements Elements, String Tag, int doc_id) throws IOException {

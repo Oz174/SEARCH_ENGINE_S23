@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 
-import project.backend.org.tartarus.snowball.ext.porterStemmer;
-
 public class Web_Indexer implements Runnable {
     static db data_search;
 
@@ -21,7 +19,7 @@ public class Web_Indexer implements Runnable {
         // get urls from the database
         ArrayList<String> urls = db.get_Not_Indexed();
         // Split the urls into chunks
-        int chunkSize = 20;
+        int chunkSize = 80;
         int thread_count = (int) Math.ceil((double) urls.size() / chunkSize);
         Thread[] threads = new Thread[thread_count];
         int thread_id = 0;
@@ -41,12 +39,7 @@ public class Web_Indexer implements Runnable {
                 e.printStackTrace();
             }
         }
-        // ✨ سَرِّش ✨
         System.out.println("Done!");
-        porterStemmer stemmer = new porterStemmer();
-        stemmer.setCurrent("galaxy");
-        stemmer.stem();
-        System.out.println(db.get_link_from_indexed_word(stemmer.getCurrent()));
         db.disconnect();
     }
 
