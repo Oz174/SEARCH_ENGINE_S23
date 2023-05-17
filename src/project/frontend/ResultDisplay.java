@@ -97,7 +97,7 @@ public class ResultDisplay extends HttpServlet {
                     <div class=\"body\">
                 """;
 
-    String str1 = "            <p>"+String.valueOf(number)+" results ("+String.valueOf(time)+" seconds)</p>   \n" +
+    String str1 = "            <p>"+String.valueOf(number)+" results ("+String.valueOf(time)+" milliseconds)</p>   \n" +
     "            <div class=\"below_card\">\n" +
     "            </div>\n" +
     "            <div id=\"results\">\n";
@@ -175,13 +175,13 @@ public class ResultDisplay extends HttpServlet {
     
     public static void getdocs(String SQ) throws IOException{
         ArrayList<Document> docs = new ArrayList<Document>();
-        int startTime = (int)System.currentTimeMillis()/1000;
+        int startTime = (int)System.currentTimeMillis();
         ArrayList<String> l= db.process_query_and_get_top_50(QueryProcessor.search_string_to_sql_query(SQ));
+        int endTime = (int)System.currentTimeMillis();
         for(String link : l){
-            Document d = Jsoup.connect(link).get();
+            Document d = Jsoup.connect(link).timeout(10000).get();
             docs.add(d);
         }
-        int endTime = (int)System.currentTimeMillis()/1000;
         displayAll(docs,endTime-startTime);
         return;
 
