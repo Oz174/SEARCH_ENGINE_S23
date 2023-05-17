@@ -15,22 +15,36 @@ import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.*;
 
+
 @WebServlet("/ResultDisplay")
 public class ResultDisplay extends HttpServlet {
     private static FileWriter fw = null;
+    private static String[] file_names = {"E:\\apache-tomcat-9.0.74-windows-x64\\apache-tomcat-9.0.74\\webapps\\ROOT\\index1.html","E:\\apache-tomcat-9.0.74-windows-x64\\apache-tomcat-9.0.74\\webapps\\ROOT\\index2.html","E:\\apache-tomcat-9.0.74-windows-x64\\apache-tomcat-9.0.74\\webapps\\ROOT\\index3.html","E:\\apache-tomcat-9.0.74-windows-x64\\apache-tomcat-9.0.74\\webapps\\ROOT\\index4.html","E:\\apache-tomcat-9.0.74-windows-x64\\apache-tomcat-9.0.74\\webapps\\ROOT\\index5.html","E:\\apache-tomcat-9.0.74-windows-x64\\apache-tomcat-9.0.74\\webapps\\ROOT\\index6.html"};
     private static String[] NUMBER_TO_INDEX = {
             "first", "second", "third", "fourth", "fifth", "sixth", "seventh", "eighth", "nineth", "tenth" };
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException , ServletException {
-       int currentpage =1;
         String query = request.getQueryString();
-        response.setContentType("text/html");
+        String search = request.getParameter("search");
+        if(search != ""){
+            response.setContentType("text/html");
+            response.getWriter().write(search);
+        }
         response.getWriter().write(query);
-        if (query =="next") {currentpage++;}
-        else{currentpage--;}
     }
-
-    private static void displayHeader(int number) throws IOException {
-        fw = new FileWriter("E:\\apache-tomcat-9.0.74-windows-x64\\apache-tomcat-9.0.74\\webapps\\ROOT\\index.html", true);
+    private static void ClearHTML(){
+        for(int i=0 ; i<6 ; i++){
+            File file = new File(file_names[i]);
+            file.delete();
+            try {
+                displayHeader(0, file_names[i]);
+                displayFooter(file_names[i]);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    private static void displayHeader(int number , String filename) throws IOException {
+        fw = new FileWriter(filename, true);
         String str0 = """
             <!DOCTYPE html>
             <html lang="en">
@@ -84,6 +98,7 @@ public class ResultDisplay extends HttpServlet {
                     </header>
                     <div class=\"body\">
                 """;
+
         String str1 = " <p>" + String.valueOf(number) + " results </p>   \n" +
                 "            <div class=\"below_card\">\n" +
                 "            </div>\n" +
@@ -93,8 +108,8 @@ public class ResultDisplay extends HttpServlet {
         return;
     }
 
-    private static void displayResult(int index, Document result) throws IOException {
-        fw = new FileWriter("E:\\apache-tomcat-9.0.74-windows-x64\\apache-tomcat-9.0.74\\webapps\\ROOT\\index.html", true);
+    private static void displayResult(int index, Document result, String filename) throws IOException {
+        fw = new FileWriter(filename, true);
         String desc;
         if (result.body().text().length() > 60) {
             desc = result.body().text().substring(0, 60);
@@ -117,59 +132,32 @@ public class ResultDisplay extends HttpServlet {
         return;
     }
 
-    private static void displayFooter(int currentPage) throws IOException {
-        fw = new FileWriter("E:\\apache-tomcat-9.0.74-windows-x64\\apache-tomcat-9.0.74\\webapps\\ROOT\\index.html", true);
-        String str1 ="";
-        if(currentPage ==1){
-            str1 = """
-                \s
-                        </div>
-                        <div class=\"last_part\">
-                        </div>
-                        <div class=\"second_logo\">
-                            <div id= \"pagination\">
-                            <span id= \"currentPage\"></span>
-                            <a href=\"ResultDisplay?next\"> Next </a>
-                          </div>
-                        </div>
-                    </div>
-                </div>
-                </div>
-            </body>
-            </html>
-            """;
-        }
-        else {
-            str1 = """
+    private static void displayFooter(String filename) throws IOException {
+        fw = new FileWriter(filename, true);
+        String str1 = """
                         \s
                                 </div>
                                 <div class= \"last_part\">
-                                </div>
-                                <div class=\"second_logo\">
-                                    <div class=\"logo_arrow\">
-                                        <img src=\"./images/google.png\" alt=\"\">
-                                        <i class= \"fas fa-arrow-right\"></i>
-                                    </div>
-                                    <div id=\"pagination\">
-                                    <a href= \"ResultDisplay?prev\"> Previous</a>"
-                                    "<span id=\"currentPage\"> </span>"
-                                    "<a href=\"ResultDisplay?next\" > Next </a>"
-                                  "</div>
-                                </div>
+                                <div class=\"numbers\">
+                                <a href=\"index1.html\">1</a>
+                                <a href=\"index2.html\">2</a>
+                                <a href=\"index3.html\">3</a>
+                                <a href=\"index4.html\">4</a>
+                                <a href=\"index5.html\">5</a>
+                                <a href=\"index6.html\">6</a>
+                            </div>
                             </div>
                             </div>
                         </div>
                     </body>
                     </html>
                     """;
-                }
                 fw.write(str1);
                 fw.close();
                 return;
     }
     public static void main(String[] args) throws IOException{
-        File file = new File("E:\\apache-tomcat-9.0.74-windows-x64\\apache-tomcat-9.0.74\\webapps\\ROOT\\index.html");
-        if(file.exists()){file.delete();}
+        ClearHTML();
         db.connect();
         ArrayList<String> links = db.get_Not_Indexed();
         List<Document> searchResults = new ArrayList<Document>();
@@ -182,18 +170,22 @@ public class ResultDisplay extends HttpServlet {
             }
         }
         db.disconnect();
-        int currentpage = 1;
-
-        ResultDisplay.displayHeader(searchResults.size()); 
-        if(searchResults.size() < 10){
-        for(int i=0 ; i<10; i++){
-            ResultDisplay.displayResult(i, searchResults.get(i));
-        }
-        }else{
-            for(int i=(currentpage-1)*10; i < Math.min(searchResults.size(),(currentpage*10)); i++){
-                ResultDisplay.displayResult(i-((currentpage-1)*10), searchResults.get(i));
+        // landing page 
+        int currentpage = 0;
+        for(int i=0 ; i< searchResults.size(); i++){
+            if(i%10==0){
+            File file = new File(file_names[currentpage]);
+            if(file.exists()){file.delete();}
+            displayHeader(searchResults.size(), file_names[currentpage]);
+            }
+            displayResult(i%10, searchResults.get(i), file_names[currentpage]);
+            if(i%10==9 || i==searchResults.size()-1){
+                displayFooter(file_names[currentpage]);
+                currentpage++;
             }
         }
-        ResultDisplay.displayFooter(currentpage);
     }
 }
+
+// 32 
+// [2] --> third
